@@ -3,10 +3,11 @@
 @tailwind utilities;
 
 .isActive {
-  background-color: skyblue;
+  border-bottom: 8px solid skyblue;
+  padding-bottom: 0px;
 }
 
-#background {
+.background {
   background-color: #e5e5f7;
   opacity: 0.8;
   background-size: 10px 10px;
