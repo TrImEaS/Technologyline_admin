@@ -8,20 +8,19 @@ import Products from './Pages/Products.jsx'
 import Error from './Pages/Error.jsx'
 
 export default function App() {
-  const [login, setLogin] = useState(true)
+  const [login, setLogin] = useState(false)
   const [user, setUser] = useState('')
 
   return (
     login === false 
     ? <Login loginSetter={setLogin} userSetter={setUser}/> :
-    <main className='relative flex flex-col items-center bg-[#fafafa] min-w-screen h-full font-body gap-10'>
+    <main className='relative flex flex-col items-center bg-[#fafafa] min-w-screen h-full font-body'>
       <ScrollToTopOnLocationChange />
       <Nav user={user}/>
       <Routes>
-        <Route path="/" element={<Home/>}/>
-        <Route path="/products" element={<ArticleEditor/>}>
-          <Route path=":product" element={<Products/>}/>
-        </Route>
+        <Route path="/admin/page/" element={<Home/>}/>
+        <Route path="/admin/page/products" element={<ArticleEditor/>}/>
+        <Route path="/admin/page/products/:product" element={<Products/>}/>
         <Route path="*" element={<Error/>}/>
       </Routes>
       <div className='absolute background min-h-screen h-full w-full'></div>

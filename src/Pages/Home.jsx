@@ -61,7 +61,7 @@ export default function Home() {
     ? 
     <div className="text-2xl">Loading...</div>
     :
-    <div className="relative flex flex-wrap justify-center gap-5 min-h-[400px] pb-10 max-sm:pt-10">
+    <div className="relative flex flex-wrap justify-center gap-5 min-h-[400px] py-10">
       <section className="flex flex-col items-center gap-y-5 border-4 pt-4 border-blue-400 border-dashed max-w-[350px] h-[300px] min-w-[260px] rounded-lg z-10 bg-[#ebfafb]">
         <h1 className="font-bold text-gray-500">
           Performance

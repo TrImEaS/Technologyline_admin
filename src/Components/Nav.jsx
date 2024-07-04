@@ -13,7 +13,8 @@ export default function Nav({ user }) {
       showCancelButton: true,
       confirmButtonText: 'Sí',
       cancelButtonText: 'Cancelar'
-    }).then((result) => {
+    })
+    .then((result) => {
       if (result.isConfirmed) {
         Swal.fire({
           title: 'Actualizando stock...',
@@ -58,17 +59,17 @@ export default function Nav({ user }) {
   }
   
   return(
-    <section className="flex relative z-20 max-sm:flex-col items-center justify-between px-10 w-full h-[70px] max-sm:px-2 border-2 border-blue-400 bg-white border-dashed">
+    <section className="flex relative z-10 max-sm:flex-col bg-blue-100 items-center justify-between px-10 w-full h-[70px] max-sm:px-2 border-2 border-blue-400 border-dashed">
       <article>
         <NavLink
-          to={'/'} 
-          className={`${path === '/' ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-sky-300 duration-300`}>
+          to={'/admin/page/'} 
+          className={`${path === '/admin/page/' ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-sky-300 duration-300`}>
           Indicadores
         </NavLink>
         
         <NavLink
-          to={'/products'} 
-          className={`${path === '/products' ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-sky-300 duration-300`}>
+          to={'/admin/page/products'} 
+          className={`${path.includes('/admin/page/products') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-sky-300 duration-300`}>
           Productos
         </NavLink>
       </article>

@@ -2,10 +2,11 @@ import { NavLink } from "react-router-dom"
 import { useState } from "react"
 import page_icon from '../Assets/page-icon.jpeg'
 import saleImg from '../Assets/hotsale-icon.svg'
+import Swal from "sweetalert2"
 
 export default function ProductCard({ product }) {
   const [imageError, setImageError] = useState(false)
-  const [status, setStatus] = useState(product.status)
+  const [actualStatus, setActualStatus] = useState(product.adminStatus)
   const formattedPrice = parseFloat(product.price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   const formattedDiscount = parseFloat(product.discount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
   
@@ -27,23 +28,48 @@ export default function ProductCard({ product }) {
 
   const percentageOff = totalDiscount(product.price, product.discount)
 
-  const handleProductStatus = async (id, status) => {
-      try {
-        const response = await fetch(`https://technologyline.com.ar/api/products/${id}`, {
-          method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json'
-          },
-          body: JSON.stringify({status: !status})
+  const handleProductStatus = async (id) => {
+    try 
+    {
+      Swal.fire
+      ({
+        title: 'Modificando producto...',
+        html: 'Por favor espera...',
+        allowOutsideClick: false,
+        didOpen: () => Swal.showLoading()
+      })
+
+      const response = await fetch(`https://technologyline.com.ar/api/products/${id}`, 
+      {
+        method: 'PATCH',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({adminStatus: !actualStatus})
+      })
+
+      if (!response.ok) 
+      { 
+        Swal.fire
+        ({
+          icon: 'error', 
+          title: 'Error al modificar producto!',  
+          text: 'Hubo un error al intentar modificar el producto.'
         });
-        if (!response.ok) { 
-          throw new Error('Error al editar producto') 
-        }
-        alert('Producto editado con exito!')
-      } 
-      catch (err) {
-        console.log(err)
+
+        throw new Error('Error al editar producto') 
       }
+
+      setActualStatus(!actualStatus)
+      Swal.fire
+      ({
+        icon: 'success',
+        title: 'Producto modificado correctamente!',
+        showConfirmButton: false, 
+        timer: 1500
+      })
+    } 
+    catch (err) {
+      console.log(err)
+    }
   }
   
   return(
@@ -79,30 +105,38 @@ export default function ProductCard({ product }) {
           : 
           <p className="font-bold text-2xl">${formattedPrice}</p>
         }
-        <p className="text-gray-500">SKU: <span>{product.sku}</span></p>
+        <p className="text-gray-600">SKU: <span>{product.sku}</span></p>
+        <p className="text-gray-600">Stock: <span>{product.stock}</span></p>
         </div>
       </article>
 
-      <article className="min-w-[200px] h-full border-l border-black px-1">
-        <ul className="flex flex-col">
+      <article className="min-w-[200px] h-full border-l border-black px-1 font-bold">
+        <ul className="flex flex-col gap-2">
           <NavLink 
-            className='text-blue-700 hover:text-cyan-400 duration-300'
-            to={`/products/${product.sku}`}>
+            className='text-blue-700 hover:text-cyan-400 duration-300 w-10'
+            to={`/admin/page/products/${product.sku}`}>
             Editar
           </NavLink>
           
-          {status 
+          {actualStatus 
           ?
-            <p onClick={() => setStatus(handleProductStatus(product.id, product.status))} className="flex relative items-center h-5 gap-x-1 group cursor-pointer w-fit">
+            <p onClick={() => handleProductStatus(product.id)} className="flex relative items-center h-5 gap-x-1 group cursor-pointer w-fit">
               <span className="text-green-500 group-hover:hidden flex">Activo</span>
               <span className="text-red-500 absolute hidden group-hover:flex">Desactivar</span>
             </p>
           : 
-            <p onClick={() => setStatus(handleProductStatus(product.id, product.status))} className="flex relative items-center h-5 gap-x-1 group cursor-pointer w-fit">
+            <p onClick={() => handleProductStatus(product.id)} className="flex relative items-center h-5 gap-x-1 group cursor-pointer w-fit">
               <span className="text-red-500 group-hover:hidden flex">Desactivado</span>
               <span className="text-green-500 absolute hidden group-hover:flex">Activar</span>
             </p>
           }
+
+          <p className="flex flex-col"> 
+            <span className={`${!actualStatus || !product.status ? 'text-red-500' : 'text-green-500'}`}>
+              Actualmente {!actualStatus || !product.status ? `Oculto` : `Visible`}
+            </span>
+            <span> ({product.stock < 3 ? 'Sin stock suficiente' : 'Con stock'})</span>
+          </p>
         </ul>
       </article>
     </section>
