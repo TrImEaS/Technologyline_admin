@@ -26,7 +26,7 @@ export default function Products () {
   useEffect(() => {
     (async function () {
       try {
-        const response = await fetch('https://technologyline.com.ar/api/products');
+        const response = await fetch('https://technologyline.com.ar/api/products?all=true');
         if (!response.ok) {
           throw new Error('Error al obtener productos');
         }
@@ -310,20 +310,20 @@ export default function Products () {
   const formattedDiscount = parseFloat(discount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })
 
   return (
-    <section className='flex flex-col items-center h-full w-full gap-y-10 pb-14 max-md:pt-10 z-10 bg-[#fafafa]'>
+    <section className='flex flex-col items-center h-full w-full gap-y-10 pb-14 max-md:pt-10 z-10 bg-[#111] text-white'>
       <header className='w-[90%] sm:mt-5 relative h-full flex max-md:flex-col max-md:items-center sm:p-5 rounded-3xl py-5'>
-        <section className='flex flex-col items-center relative w-[55%] max-sm:w-full h-full min-h-[300px]'>
+        <section className='flex flex-col items-center gap-y-5 relative w-[55%] max-sm:w-full h-full min-h-[300px] max-h-[500px]'>
           {discount > 0 ? <img className="absolute h-14 w-14 right-7 top-10" src={saleImg} alt="" /> : ''}
           
           <div className='h-[300px] w-[300px]'>
-            <img className='h-full w-full object-contain' src={selectedImg} />
+            <img className='h-full w-full object-contain rounded-lg' src={selectedImg} />
           </div>
 
           {loadingImages ? <Spinner /> : 
-            <div className='flex justify-center w-full h-full'>
+            <div className='flex justify-center w-full h-full rounded-lg max-h-[100px]'>
               {loadedImages.map((img, index) =>(
                 <img 
-                  className='h-24 w-24 cursor-pointer object-contain' 
+                  className='h-24 w-24 cursor-pointer object-contain rounded-lg' 
                   onClick={() => {setSelectedImg(img)}} 
                   key={index} 
                   src={img} 
@@ -333,7 +333,7 @@ export default function Products () {
           }
         </section>
 
-        <section className='flex flex-col w-[45%] justify-start max-sm:px-10 items-start h-fit max-md:w-full border-2 rounded-lg p-8 sm:mb-10 shadow-lg'>
+        <section className='flex flex-col w-[45%] justify-start max-sm:px-10 items-start h-fit max-md:w-full border-2 rounded-lg p-8 sm:mb-10 shadow-[#fafafa] shadow-lg'>
           <div className='flex gap-3'>
             <span onClick={() => editField('name')} className='text-blue-400 hover:text-black cursor-pointer top-1 font-bold duration-300'>
               Editar nombre
@@ -349,7 +349,7 @@ export default function Products () {
           </div>
 
           <div className='min-h-[200px] flex flex-col gap-y-2'>
-            <span className='text-sm text-gray-500'>
+            <span className='text-sm text-[#fafafae8]'>
               SKU: {product.sku}
             </span>
 
@@ -376,14 +376,14 @@ export default function Products () {
           </div>
 
           <div className='w-full flex max-md:justify-center items-center'>
-            <a className='rounded-xl flex items-center justify-center text-lg border-2 border-black font-bold hover:bg-black hover:text-white active:text-sm active:duration-0 py-1 px-2 duration-300 w-[200px] h-[50px]'>
+            <a className='rounded-xl flex items-center justify-center text-lg border-2 bg-white text-black border-black font-bold hover:bg-black hover:text-white active:text-sm active:duration-0 z-40 py-1 px-2 duration-300 w-[200px] h-[50px]'>
               Consultar Articulo
             </a>
           </div>
         </section>
       </header>
 
-      <div className='flex flex-col max-sm:w-[90%] w-[83%] bg-blue-400 rounded-lg border shadow-lg'>
+      <div className='flex flex-col max-sm:w-[90%] w-[83%] bg-blue-400 rounded-lg border shadow-[#fafafa] shadow-lg'>
         <div className='flex p-2 gap-x-3'>
           <span 
             onClick={() => setDescriptionMenu('desc')}          
@@ -404,7 +404,7 @@ export default function Products () {
             (
               <div>
                 <div 
-                  className='flex flex-col px-4 py-2' 
+                  className='flex flex-col px-4 py-2 text-black' 
                   dangerouslySetInnerHTML={{ __html: description ? description : 'Este articulo no posee descripciones.' }} />
                 <span onClick={() => editField('desc')} className='absolute text-blue-400 hover:text-black cursor-pointer top-0 right-2 duration-300'>Editar</span>
               </div>
@@ -412,7 +412,7 @@ export default function Products () {
             :
             (
               <div>
-                <div className='flex flex-col px-4 py-2' dangerouslySetInnerHTML={{ __html: specifications ? specifications : 'Este articulo no posee especificaciones.' }} />
+                <div className='flex flex-col px-4 py-2 text-black' dangerouslySetInnerHTML={{ __html: specifications ? specifications : 'Este articulo no posee especificaciones.' }} />
                 <span onClick={() => editField('spec')} className='absolute text-blue-400 hover:text-black cursor-pointer top-0 right-2 duration-300'>Editar</span>
               </div>
             )}

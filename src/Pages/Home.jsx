@@ -61,59 +61,63 @@ export default function Home() {
     ? 
     <div className="text-2xl">Loading...</div>
     :
-    <div className="relative flex flex-wrap justify-center gap-5 min-h-[400px] py-10">
-      <section className="flex flex-col items-center gap-y-5 border-4 pt-4 border-blue-400 border-dashed max-w-[350px] h-[300px] min-w-[260px] rounded-lg z-10 bg-[#ebfafb]">
-        <h1 className="font-bold text-gray-500">
-          Performance
-        </h1>
-        <div className="flex flex-col gap-3">
-          <p><span className="font-bold">Visitas:</span> {totalViews}</p>
-          <p><span className="font-bold">Consultas totales</span> {totalQueries}</p>
-        </div>
-      </section>
+    <section className="relative flex flex-col w-3/4 justify-center gap-5 min-h-[400px] py-10">
+      <div className="flex w-full justify-center gap-x-10">
+        <section className="flex flex-col items-center gap-y-5 pt-4 max-w-[350px] min-h-[300px] min-w-[260px] rounded-lg z-10 bg-[#fafafa]">
+          <h1 className="font-bold text-gray-500">
+            Performance
+          </h1>
+          <div className="flex flex-col gap-3">
+            <p><span className="font-bold">Visitas:</span> {totalViews}</p>
+            <p><span className="font-bold">Consultas totales</span> {totalQueries}</p>
+          </div>
+        </section>
 
-      <section className="flex flex-col items-center gap-y-5 border-4 pt-4 border-blue-400 border-dashed min-h-[300px] h-fit min-w-[260px] py-7 rounded-lg z-10 bg-[#ebfafb]">
-        <h1 className="font-bold text-gray-500">TOP mas consultados:</h1> 
-        <div className="flex flex-col gap-y-5">
-          {topProducts.slice(0,5).map((product, index) =>(
-            <div key={product.id} className="flex flex-col">
-              <p className="font-bold">
-                TOP {index + 1}: <span className="font-normal">{product.sku}</span>
-              </p>
-              <p className="font-semibold">
-                Consultas: <span className="font-normal">{product.total_views}</span>
-              </p>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      <section className="flex flex-col items-center justify-between gap-5 border-4 p-4 border-blue-400 border-dashed min-h-[400px] max-h-[400px] max-w-[500px] rounded-lg z-10 bg-[#ebfafb]">
-        <h1 className="font-bold text-gray-500">
-          Emails subscriptos
-        </h1>
-        <div className="grid grid-rows-6 grid-cols-2 gap-y-5 w-full h-full max-sm:grid-cols-1">
-          {clients.reverse().slice(startIndex, startIndex + 10).map(client => (
-            <span className="min-w-[220px]" key={client.id}>
-              💠{client.email}
-            </span>
-          ))}
-        </div>
-        <div className="flex justify-between w-1/2">
-          <button 
-            className="text-4xl disabled:opacity-40 disabled:cursor-default"
-            onClick={() => setStartIndex(startIndex - 10)} 
-            disabled={startIndex === 0}>
-            ⬅️
-          </button>
-          <button 
-            className="text-4xl disabled:opacity-40 disabled:cursor-default"
-            onClick={() => setStartIndex(Math.max(0, startIndex + 10))} 
-            disabled={startIndex + 10 >= clients.length}>
-            ➡️
-          </button>
-        </div>
-      </section>
-    </div>
+        <section className="flex flex-col items-center gap-y-5 pt-4 min-h-[300px] h-fit min-w-[260px] py-7 rounded-lg z-10 bg-[#fafafa]">
+          <h1 className="font-bold text-gray-500">TOP mas consultados:</h1> 
+          <div className="flex flex-col gap-y-5">
+            {topProducts.slice(0,5).map((product, index) =>(
+              <div key={product.id} className="flex flex-col">
+                <p className="font-bold">
+                  TOP {index + 1}: <span className="font-normal">{product.sku}</span>
+                </p>
+                <p className="font-semibold">
+                  Consultas: <span className="font-normal">{product.total_views}</span>
+                </p>
+              </div>
+            ))}
+          </div>
+        </section>
+      </div>
+      
+      <div className="flex justify-center w-full">
+        <section className="flex flex-col items-center justify-around gap-5 p-4 min-h-[460px] max-h-[400px] rounded-lg z-10 bg-[#fafafa] w-full">
+          <h1 className="font-bold text-gray-500">
+            Emails subscriptos
+          </h1>
+          <div className="grid grid-rows-6 grid-cols-2 gap-y-5 place-items-center w-full h-full max-sm:grid-cols-1">
+            {clients.reverse().slice(startIndex, startIndex + 10).map(client => (
+              <span className="min-w-[300px]" key={client.id}>
+                💠{client.email}
+              </span>
+            ))}
+          </div>
+          <div className="flex justify-between w-1/2">
+            <button 
+              className="text-4xl disabled:opacity-40 disabled:cursor-default"
+              onClick={() => setStartIndex(startIndex - 10)} 
+              disabled={startIndex === 0}>
+              ⬅️
+            </button>
+            <button 
+              className="text-4xl disabled:opacity-40 disabled:cursor-default"
+              onClick={() => setStartIndex(Math.max(0, startIndex + 10))} 
+              disabled={startIndex + 10 >= clients.length}>
+              ➡️
+            </button>
+          </div>
+        </section>
+      </div>
+    </section>
   )
 }

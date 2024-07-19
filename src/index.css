@@ -3,7 +3,7 @@
 @tailwind utilities;
 
 .isActive {
-  border-bottom: 8px solid skyblue;
+  border-bottom: 8px solid white;
   padding-bottom: 0px;
 }
 

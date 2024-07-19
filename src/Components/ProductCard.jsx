@@ -73,7 +73,7 @@ export default function ProductCard({ product }) {
   }
   
   return(
-    <section className="flex box-border items-center justify-center bg-white px-1 py-4 w-full h-[200px]">
+    <section className="flex box-border items-center justify-center bg-[#fafafa] rounded-lg px-1 py-4 w-full h-[200px]">
       <article className="flex w-full h-full border-r border-black px-1">
         <header className="relative w-full h-full box-border">
           {product.discount > 0 || product.discount

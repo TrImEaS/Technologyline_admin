@@ -14,7 +14,7 @@ export default function App() {
   return (
     login === false 
     ? <Login loginSetter={setLogin} userSetter={setUser}/> :
-    <main className='relative flex flex-col items-center bg-[#fafafa] min-w-screen h-full font-body'>
+    <main className='relative flex flex-col items-center bg-[#111] min-w-screen min-h-screen h-full font-body'>
       <ScrollToTopOnLocationChange />
       <Nav user={user}/>
       <Routes>
@@ -23,7 +23,7 @@ export default function App() {
         <Route path="/admin/page/products/:product" element={<Products/>}/>
         <Route path="*" element={<Error/>}/>
       </Routes>
-      <div className='absolute background min-h-screen h-full w-full'></div>
+      {/* <div className='absolute background min-h-screen h-full w-full'></div> */}
     </main>
   )
 }

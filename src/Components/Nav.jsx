@@ -1,4 +1,3 @@
-import { useState } from 'react'
 import { NavLink, useLocation } from 'react-router-dom'
 import Swal from 'sweetalert2'
 
@@ -59,17 +58,17 @@ export default function Nav({ user }) {
   }
   
   return(
-    <section className="flex relative z-10 max-sm:flex-col bg-blue-100 items-center justify-between px-10 w-full h-[70px] max-sm:px-2 border-2 border-blue-400 border-dashed">
+    <section className="flex relative z-10 max-sm:flex-col text-white border-white border-y bg-[#111] items-center justify-between px-10 w-full h-[70px] max-sm:px-2">
       <article>
         <NavLink
           to={'/admin/page/'} 
-          className={`${path === '/admin/page/' ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-sky-300 duration-300`}>
+          className={`${path === '/admin/page/' ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
           Indicadores
         </NavLink>
         
         <NavLink
           to={'/admin/page/products'} 
-          className={`${path.includes('/admin/page/products') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-sky-300 duration-300`}>
+          className={`${path.includes('/admin/page/products') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
           Productos
         </NavLink>
       </article>
@@ -77,12 +76,12 @@ export default function Nav({ user }) {
       <article className='min-w-[300px] flex gap-x-5 items-center'>
         <button 
           onClick={handleUpdateStock}
-          className={`max-sm:absolute top-[75px] right-20 border-4 px-2 py-1 border-blue-400 border-dashed rounded-lg hover:bg-black hover:text-white duration-300 font-semibold z-10 bg-[#ebfafb]`}>
+          className={`max-sm:absolute top-[75px] right-20 border-4 px-2 py-1 border-white rounded-lg text-white hover:scale-105 duration-300 font-semibold z-10 bg-black`}>
           Actualizar stock
         </button>
 
         <span className='text-xl'>
-          Bienvenido <span className="text-blue-400 font-semibold">{user.slice(0,1).toUpperCase() + user.slice(1)}</span>
+          Bienvenido <span className="text-white font-bold">{user.slice(0,1).toUpperCase() + user.slice(1)}</span>
         </span>
       </article>
     </section>

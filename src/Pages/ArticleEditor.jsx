@@ -27,7 +27,7 @@ export default function ArticleEditor() {
   }, [])
 
   if(loading) {
-    return <div className="z-10 text-3xl">Loading...</div>
+    return <div className="z-10 text-3xl min-h-screen text-white py-[150px]">Loading...</div>
   }
   
   const filteredProducts = products.filter((product) => 
