@@ -58,7 +58,7 @@ export default function Nav({ user }) {
   }
   
   return(
-    <section className="flex relative z-10 max-sm:flex-col text-white border-white border-y bg-[#111] items-center justify-between px-10 w-full h-[70px] max-sm:px-2">
+    <section className="flex z-50 max-sm:flex-col text-white border-b border-[#fafafa] border-opacity-40 relative items-center justify-between px-10 w-full h-[70px] max-sm:px-2">
       <article>
         <NavLink
           to={'/admin/page/'} 
@@ -67,8 +67,8 @@ export default function Nav({ user }) {
         </NavLink>
         
         <NavLink
-          to={'/admin/page/products'} 
-          className={`${path.includes('/admin/page/products') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
+          to={'/admin/page/article_editor'} 
+          className={`${path.includes('/admin/page/article_editor') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
           Productos
         </NavLink>
       </article>

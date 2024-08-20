@@ -14,14 +14,14 @@ export default function App() {
   return (
     login === false 
     ? <Login loginSetter={setLogin} userSetter={setUser}/> :
-    <main className='relative flex flex-col items-center bg-[#111] min-w-screen min-h-screen h-full font-body'>
+    <main className='relative flex flex-col items-center bg-gradient-to-br from-[#ffb400] to-[#8b2323] min-w-screen min-h-screen h-full font-body'>
       <ScrollToTopOnLocationChange />
       <Nav user={user}/>
       <Routes>
         <Route path="/admin/page/" element={<Home/>}/>
-        <Route path="/admin/page/products" element={<ArticleEditor/>}/>
-        <Route path="/admin/page/products/:product" element={<Products/>}/>
-        <Route path="*" element={<Error/>}/>
+        <Route path="/admin/page/article_editor" element={<ArticleEditor/>}/>
+        <Route path="/admin/page/products" element={<Products/>}/>
+        <Route path="/admin/page/error" element={<Error/>}/>
       </Routes>
       {/* <div className='absolute background min-h-screen h-full w-full'></div> */}
     </main>

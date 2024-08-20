@@ -63,8 +63,8 @@ export default function Home() {
     :
     <section className="relative flex flex-col w-3/4 justify-center gap-5 min-h-[400px] py-10">
       <div className="flex w-full justify-center gap-x-10">
-        <section className="flex flex-col items-center gap-y-5 pt-4 max-w-[350px] min-h-[300px] min-w-[260px] rounded-lg z-10 bg-[#fafafa]">
-          <h1 className="font-bold text-gray-500">
+        <section className="flex flex-col items-center gap-y-5 pt-4 max-w-[350px] min-h-[300px] min-w-[260px] rounded-lg z-10 bg-white/10 backdrop-blur-md brightness-125 border-2 text-white">
+          <h1 className="font-semibold text-xl text-[#fafafa]">
             Performance
           </h1>
           <div className="flex flex-col gap-3">
@@ -73,8 +73,8 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="flex flex-col items-center gap-y-5 pt-4 min-h-[300px] h-fit min-w-[260px] py-7 rounded-lg z-10 bg-[#fafafa]">
-          <h1 className="font-bold text-gray-500">TOP mas consultados:</h1> 
+        <section className="flex flex-col items-center gap-y-5 pt-4 min-h-[300px] h-fit min-w-[260px] py-7 rounded-lg z-10 bg-white/10 backdrop-blur-md brightness-125 border-2 text-white">
+          <h1 className="font-semibold text-xl text-[#fafafa]">TOP mas consultados:</h1> 
           <div className="flex flex-col gap-y-5">
             {topProducts.slice(0,5).map((product, index) =>(
               <div key={product.id} className="flex flex-col">
@@ -91,8 +91,8 @@ export default function Home() {
       </div>
       
       <div className="flex justify-center w-full">
-        <section className="flex flex-col items-center justify-around gap-5 p-4 min-h-[460px] max-h-[400px] rounded-lg z-10 bg-[#fafafa] w-full">
-          <h1 className="font-bold text-gray-500">
+        <section className="flex flex-col items-center justify-around gap-5 p-4 min-h-[460px] max-h-[400px] rounded-lg z-10 bg-white/10 backdrop-blur-md brightness-125 border-2 text-white w-full">
+          <h1 className="font-semibold text-xl text-[#fafafa]">
             Emails subscriptos
           </h1>
           <div className="grid grid-rows-6 grid-cols-2 gap-y-5 place-items-center w-full h-full max-sm:grid-cols-1">

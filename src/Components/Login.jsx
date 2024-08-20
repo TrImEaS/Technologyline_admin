@@ -1,21 +1,45 @@
-import { useState } from "react"
+import { useEffect, useState } from "react"
 import Swal from 'sweetalert2'
 
 export default function Login({ loginSetter, userSetter }) {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
 
-  const handleSubmit = (event) => {
-    event.preventDefault()
+  useEffect(() => {
+    // Verificar si hay una hora de inicio de sesión guardada
+    const loginTime = localStorage.getItem('loginTime');
+    
+    if (loginTime) {
+      const currentTime = Date.now();
+      const hoursSinceLogin = (currentTime - loginTime) / (1000 * 60 * 60);
 
-    if(!username || !password){
+      if (hoursSinceLogin >= 12) {
+        // Si han pasado más de 12 horas, se obliga a iniciar sesión nuevamente
+        localStorage.removeItem('loginTime');
+        Swal.fire({
+          icon: 'warning',
+          title: 'Sesión expirada. Por favor, inicie sesión nuevamente.',
+          timer: 3000,
+          timerProgressBar: true
+        });
+      }
+      else {
+        loginSetter(true)
+      }
+    }
+  }, []);
+
+  const handleSubmit = (event) => {
+    event.preventDefault();
+
+    if (!username || !password) {
       Swal.fire({
         icon: 'warning',
         title: 'Se requiere llenar todos los campos',
         timer: 3000,
         timerProgressBar: true
-      })
-      return
+      });
+      return;
     }
 
     fetch('https://technologyline.com.ar/api/admin/login', {
@@ -36,23 +60,23 @@ export default function Login({ loginSetter, userSetter }) {
           timer: 2000,
           timerProgressBar: true,
           didClose: () => {
-            setTimeout(() => {
-              userSetter(username)
-              loginSetter(true)
-            })
+            // Guardar la hora de conexión en localStorage
+            localStorage.setItem('loginTime', Date.now());
+
+            userSetter(username);
+            loginSetter(true);
           }
-        })
-      } 
-      else {
+        });
+      } else {
         Swal.fire({
           icon: 'warning',
           title: 'Usuario o contraseña incorrectos, intente nuevamente',
           timer: 3000,
           timerProgressBar: true
-        })
+        });
       }
     })
-    .catch(e => console.error('Error al loguearse: ', e))
+    .catch(e => console.error('Error al loguearse: ', e));
   }
 
   return (
