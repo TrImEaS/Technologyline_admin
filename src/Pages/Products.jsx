@@ -4,7 +4,7 @@ import Spinner from '../Components/Products/Spinner.jsx';
 import saleImg from '../Assets/hotsale-icon.svg';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import 'bootstrap/dist/css/bootstrap.min.css';
+// import 'bootstrap/dist/css/bootstrap.min.css';
 
 const MySwal = withReactContent(Swal);
 
@@ -125,6 +125,7 @@ export default function Products() {
       if (!response.ok) throw new Error('Error al editar producto');
       alert('Producto editado con éxito!');
       setProduct(prev => ({ ...prev, [field]: newValue }));
+      window.location.reload()
     } catch (err) {
       console.log(err);
       alert('Error al cambiar el valor, 500 servidor error');
