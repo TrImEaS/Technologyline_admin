@@ -4,7 +4,6 @@ import Spinner from '../Components/Products/Spinner.jsx';
 import saleImg from '../Assets/hotsale-icon.svg';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-// import 'bootstrap/dist/css/bootstrap.min.css';
 
 const MySwal = withReactContent(Swal);
 
