@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaDotCircle } from "react-icons/fa"
 
 export default function Home() {
   const [topProducts, setTopProducts] = useState([])
@@ -7,6 +8,8 @@ export default function Home() {
   const [totalViews, setTotalViews] = useState(0)
   const [totalQueries, setTotalQueries] = useState(0)
   const [startIndex, setStartIndex] = useState(0)
+  const [currentPage, setCurrentPage] = useState(1);
+  const [itemsPerPage, setItemsPerPage] = useState(13);
 
   const getData = () => {
     // fetch('http://localhost:8080/api/products?all=true')
@@ -56,6 +59,9 @@ export default function Home() {
     return () => clearInterval(interval);
   },[])
 
+  const totalPages = Math.ceil(clients.length / itemsPerPage);
+  const displayedArticles = clients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
   return (
     loading 
     ? 
@@ -92,29 +98,58 @@ export default function Home() {
       
       <div className="flex justify-center w-full">
         <section className="flex flex-col items-center justify-around gap-5 p-4 min-h-[460px] max-h-[400px] rounded-lg z-10 bg-white/10 backdrop-blur-md brightness-125 border-2 text-white w-full">
-          <h1 className="font-semibold text-xl text-[#fafafa]">
+          <h1 className="font-semibold text-xl text-[#fafafa] border-b-2">
             Emails subscriptos
           </h1>
           <div className="grid grid-rows-6 grid-cols-2 gap-y-5 place-items-center w-full h-full max-sm:grid-cols-1">
-            {clients.reverse().slice(startIndex, startIndex + 10).map(client => (
-              <span className="min-w-[300px]" key={client.id}>
-                💠{client.email}
+            {displayedArticles.reverse().slice(startIndex, startIndex + 10).map(client => (
+              <span className="min-w-[300px] flex gap-1 items-center" key={client.id}>
+                <FaDotCircle/>
+                <span>{client.email}</span>
               </span>
             ))}
           </div>
-          <div className="flex justify-between w-1/2">
-            <button 
-              className="text-4xl disabled:opacity-40 disabled:cursor-default"
-              onClick={() => setStartIndex(startIndex - 10)} 
-              disabled={startIndex === 0}>
-              ⬅️
-            </button>
-            <button 
-              className="text-4xl disabled:opacity-40 disabled:cursor-default"
-              onClick={() => setStartIndex(Math.max(0, startIndex + 10))} 
-              disabled={startIndex + 10 >= clients.length}>
-              ➡️
-            </button>
+
+          {/* Div Paginacion*/}
+          <div className="flex gap-x-5 mt-5 w-full justify-center items-center">
+            <div className="flex items-center">
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCurrentPage(1)}
+                  className="px-4 py-2 cursor-pointer bg-white text-black rounded-lg shadow-md hover:scale-105 hover:bg-opacity-80 transition duration-300"
+                >
+                  <FaAngleDoubleLeft className="text-2xl" />
+                </button>
+
+                <button
+                  onClick={() => setCurrentPage(prevPage => Math.max(prevPage - 1, 1))}
+                  disabled={currentPage === 1}
+                  className="px-4 py-2 cursor-pointer bg-white text-black rounded-lg shadow-md hover:scale-105 hover:bg-opacity-80 transition duration-300"
+                >
+                  <FaAngleLeft className="text-2xl" />
+                </button>
+              </div>
+
+              {/* Mostrar currentPage / totalPages */}
+              <span className="px-4 bg-white text-black mx-1 py-[6px] rounded-lg text-xl font-semibold">{currentPage} / {totalPages}</span>
+              
+              <div className="flex gap-2">
+                <button
+                  onClick={() => setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages))}
+                  disabled={currentPage === totalPages}
+                  className="px-4 cursor-pointer py-2 bg-white text-black rounded-lg shadow-md hover:scale-105 hover:bg-opacity-80 transition duration-300"
+                >
+                  <FaAngleRight className="text-2xl" />
+                </button>
+
+                <button
+                  onClick={() => setCurrentPage(totalPages)}
+                  className="px-4 py-2 cursor-pointer bg-white text-black rounded-lg shadow-md hover:scale-105 hover:bg-opacity-80 transition duration-300"
+                >
+                  <FaAngleDoubleRight className="text-2xl" />
+                </button>
+              </div>
+            </div>
           </div>
         </section>
       </div>

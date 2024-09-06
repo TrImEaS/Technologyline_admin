@@ -49,7 +49,8 @@ export default function Products() {
         setSpecifications(newProduct.specifications);
         document.title = `${newProduct.name} | Technology Line`;
         setLoading(false);
-      } catch (err) {
+      } 
+      catch (err) {
         console.log(err);
       }
     })();
