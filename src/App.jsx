@@ -7,6 +7,7 @@ import Nav from './Components/Nav.jsx'
 import Products from './Pages/Products.jsx'
 import Error from './Pages/Error.jsx'
 import Queries from './Pages/Queries.jsx'
+import Test from './Components/Test.jsx'
 
 export default function App() {
   const [login, setLogin] = useState(false)
@@ -23,6 +24,7 @@ export default function App() {
         <Route path="/admin/page/article_editor" element={<ArticleEditor/>}/>
         <Route path="/admin/page/products" element={<Products/>}/>
         <Route path='/admin/page/queries' element={<Queries/>}/>
+        <Route path='/admin/page/test' element={<Test/>}/>
         <Route path="/admin/page/error" element={<Error/>}/>
       </Routes>
       {/* <div className='absolute background min-h-screen h-full w-full'></div> */}
