@@ -110,6 +110,12 @@ export default function Nav({ user }) {
           className={`${path.includes('/admin/page/article_editor') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
           Productos
         </NavLink>
+
+        <NavLink
+          to={'/admin/page/banners'} 
+          className={`${path.includes('/admin/page/banners') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
+          Banners
+        </NavLink>
       </article>
 
       <article className='min-w-[300px] flex gap-x-5 items-center'>

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react"
+import Swal from "sweetalert2"
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaDotCircle } from "react-icons/fa"
 
 export default function Home() {
@@ -58,6 +59,28 @@ export default function Home() {
 
     return () => clearInterval(interval);
   },[])
+
+  const getAllMails = (arr = []) => {
+    const newArray = arr.map(item => item.email).join(';')
+    navigator.clipboard.writeText(`${newArray};`)
+      .then(() => {
+        Swal.fire({
+          title: '¡Texto copiado al portapapeles!',
+          icon: 'success',
+          timer: 2000,
+          timerProgressBar: 2000
+        })
+      })
+      .catch(err => {
+        console.error('Error al copiar al portapapeles: ', err);
+        Swal.fire({
+          title: 'Error al copiar al portapapeles',
+          icon: 'error',
+          timer: 2000,
+          timerProgressBar: 2000
+        })
+      });
+  }
 
   const totalPages = Math.ceil(clients.length / itemsPerPage);
   const displayedArticles = clients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
@@ -148,7 +171,17 @@ export default function Home() {
                 >
                   <FaAngleDoubleRight className="text-2xl" />
                 </button>
+
+                <button
+                  onClick={() => getAllMails(clients)}
+                  className="px-4 py-2 cursor-pointer font-bold bg-white text-black rounded-lg shadow-md hover:scale-105 hover:bg-opacity-80 transition duration-300"
+                >
+                  Copiar Mails
+                </button>
               </div>
+            </div>
+
+            <div>
             </div>
           </div>
         </section>

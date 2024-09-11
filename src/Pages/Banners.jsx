@@ -2,7 +2,7 @@ import { useEffect, useState } from "react";
 import Swal from 'sweetalert2';
 import 'sweetalert2/src/sweetalert2.scss';
 
-export default function Test() {
+export default function Banners() {
   const [desktopBanners, setDesktopBanners] = useState([]);
   const [mobileBanners, setMobileBanners] = useState([]);
 
@@ -62,14 +62,13 @@ export default function Test() {
       },
       didOpen: () => {
         document.getElementById('delete-button').addEventListener('click', () => {
-          const to = document.getElementById('to').value;
           Swal.showLoading(); // Mostrar loader antes de la solicitud
-          fetch('https://technologyline.com.ar/api/page/deleteImage', {
+          fetch('https://technologyline.com.ar/api/page/deleteBanner', {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
             },
-            body: JSON.stringify({ id, name, to }),
+            body: JSON.stringify({ id, name }),
           })
             .then(response => response.json())
             .then(data => {
@@ -150,7 +149,7 @@ export default function Test() {
                       className="w-full h-[200px] object-contain rounded-lg"
                     />
                   ) : (
-                    <div className="w-full px-3 h-24 bg-slate-800 rounded-lg text-white flex items-center justify-center text-center">
+                    <div className="w-full px-3 h-24 rounded-lg text-white flex items-center justify-center text-center">
                       Sin banner
                     </div>
                   )}
@@ -179,7 +178,7 @@ export default function Test() {
                       className="w-full h-[200px] object-contain rounded-lg"
                     />
                   ) : (
-                    <div className="w-full px-3 h-24 bg-slate-800 rounded-lg text-white flex items-center justify-center text-center">
+                    <div className="w-full px-3 h-24 rounded-lg text-white flex items-center justify-center text-center">
                       Sin banner
                     </div>
                   )}
