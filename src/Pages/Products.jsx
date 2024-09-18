@@ -42,7 +42,7 @@ export default function Products() {
         setLoadingImages(true);
         setProduct(newProduct);
         setSelectedImg(newProduct.img_base);
-        setDescription(newProduct.description);
+        setDescription(newProduct.descriptions);
         setName(newProduct.name);
         setPrice(newProduct.price);
         setDiscount(newProduct.discount);
@@ -132,7 +132,7 @@ export default function Products() {
     }
   };
 
-  const handleEditDescription = (id, newValue) => handleEditField('description', newValue);
+  const handleEditDescription = (id, newValue) => handleEditField('descriptions', newValue);
   const handleEditSpecifications = (id, newValue) => handleEditField('specifications', newValue);
   const handleEditName = (id, newValue) => handleEditField('name', newValue);
   const handleEditPrice = (id, newValue) => handleEditField('price', newValue);
