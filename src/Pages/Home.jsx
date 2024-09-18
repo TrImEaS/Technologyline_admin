@@ -1,6 +1,7 @@
 import { useState, useEffect } from "react"
 import Swal from "sweetalert2"
-import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaDotCircle } from "react-icons/fa"
+import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaDotCircle, FaTrashAlt } from "react-icons/fa"
+import axios from "axios"
 
 export default function Home() {
   const [topProducts, setTopProducts] = useState([])
@@ -82,6 +83,37 @@ export default function Home() {
       });
   }
 
+  const handleDeleteMail = (id) => {
+    axios.delete(`https://technologyline.com.ar/api/clients/deleteClient?id=${parseInt(id)}`)
+      .then(res => {
+        if (res.status >= 200 && res.status < 300) {
+          Swal.fire({
+            title: 'Mail borrado exitosamente!',
+            icon: 'success',
+            timer: 2000,
+            timerProgressBar: true
+          });
+          return getData()
+        } 
+
+        Swal.fire({
+          title: 'Error al eliminar mail o ya ha sido eliminado.',
+          icon: 'error',
+          timer: 2000,
+          timerProgressBar: true
+        });
+      })
+      .catch(error => {
+        Swal.fire({
+          title: 'Error al eliminar mail, intente de nuevo!',
+          icon: 'error',
+          timer: 2000,
+          timerProgressBar: true
+        });
+        console.error('Error deleting mail:', error);
+      });
+  }
+
   const totalPages = Math.ceil(clients.length / itemsPerPage);
   const displayedArticles = clients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
@@ -124,11 +156,12 @@ export default function Home() {
           <h1 className="font-semibold text-xl text-[#fafafa] border-b-2">
             Emails subscriptos
           </h1>
-          <div className="grid grid-rows-6 grid-cols-2 gap-y-5 place-items-center w-full h-full max-sm:grid-cols-1">
+          <div className="flex flex-wrap gap-y-5 pl-[100px] w-full h-full max-sm:grid-cols-1">
             {displayedArticles.reverse().slice(startIndex, startIndex + 10).map(client => (
               <span className="min-w-[300px] flex gap-1 items-center" key={client.id}>
                 <FaDotCircle/>
                 <span>{client.email}</span>
+                <FaTrashAlt onClick={()=> handleDeleteMail(client.id)} className="hover:text-red-500 duration-300 cursor-pointer"/>
               </span>
             ))}
           </div>
