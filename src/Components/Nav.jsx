@@ -39,25 +39,72 @@ export default function Nav({ user }) {
     return () => clearInterval(interval);
   }, []);
 
+  // const handleUpdateStock = () => {
+  //   Swal.fire({
+  //     title: 'Selecciona el archivo Excel para actualizar el stock',
+  //     input: 'file',
+  //     inputAttributes: {
+  //       accept: '.xlsx',
+  //     },
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Subir',
+  //     cancelButtonText: 'Cancelar',
+  //     inputValidator: (value) => {
+  //       return !value && 'Necesitas seleccionar un archivo!';
+  //     }
+  //   }).then((result) => {
+  //     if (result.isConfirmed) {
+  //       const file = result.value;
+  //       const formData = new FormData();
+  //       formData.append('file', file);
+
+  //       Swal.fire({
+  //         title: 'Actualizando stock...',
+  //         allowOutsideClick: false,
+  //         didOpen: () => {
+  //           Swal.showLoading();
+  //         }
+  //       });
+
+  //       fetch('https://technologyline.com.ar/api/products/jirejfdisbjfi4iwurjknvijioeb49/refresh-data', {
+  //         method: 'POST',
+  //         body: formData
+  //       })
+  //       .then(response => {
+  //         if (response.ok) {
+  //           return response.json();
+  //         } else {
+  //           throw new Error('Error al actualizar el stock');
+  //         }
+  //       })
+  //       .then(data => {
+  //         Swal.fire({
+  //           icon: 'success',
+  //           title: 'DB actualizada correctamente',
+  //           confirmButtonText: 'Aceptar'
+  //         });
+  //       })
+  //       .catch(error => {
+  //         console.error('Error al actualizar el stock:', error);
+  //         Swal.fire({
+  //           icon: 'error',
+  //           title: 'Error al actualizar DB',
+  //           text: '¡Inténtalo nuevamente!',
+  //           confirmButtonText: 'Aceptar'
+  //         });
+  //       });
+  //     }
+  //   });
+  // };
+
   const handleUpdateStock = () => {
     Swal.fire({
-      title: 'Selecciona el archivo Excel para actualizar el stock',
-      input: 'file',
-      inputAttributes: {
-        accept: '.xlsx',
-      },
+      title: '¿Estás seguro de que deseas actualizar el stock?',
       showCancelButton: true,
-      confirmButtonText: 'Subir',
+      confirmButtonText: 'Actualizar',
       cancelButtonText: 'Cancelar',
-      inputValidator: (value) => {
-        return !value && 'Necesitas seleccionar un archivo!';
-      }
     }).then((result) => {
       if (result.isConfirmed) {
-        const file = result.value;
-        const formData = new FormData();
-        formData.append('file', file);
-
         Swal.fire({
           title: 'Actualizando stock...',
           allowOutsideClick: false,
@@ -65,12 +112,9 @@ export default function Nav({ user }) {
             Swal.showLoading();
           }
         });
-
-        // fetch('http://localhost:8080/api/products/jirejfdisbjfi4iwurjknvijioeb49/refresh-data', {
-        fetch('https://technologyline.com.ar/api/products/jirejfdisbjfi4iwurjknvijioeb49/refresh-data', {
-          method: 'POST',
-          body: formData
-        })
+  
+        // Make the fetch request without a file upload
+        fetch('https://technologyline.com.ar/api/admin/jirejfdisbjfi4iwurjknvijioeb49/refresh-data')
         .then(response => {
           if (response.ok) {
             return response.json();
@@ -82,8 +126,7 @@ export default function Nav({ user }) {
           Swal.fire({
             icon: 'success',
             title: 'DB actualizada correctamente',
-            timer: 2000,
-            timerProgressBar: true,
+            confirmButtonText: 'Aceptar'
           });
         })
         .catch(error => {
@@ -92,14 +135,13 @@ export default function Nav({ user }) {
             icon: 'error',
             title: 'Error al actualizar DB',
             text: '¡Inténtalo nuevamente!',
-            timer: 3000,
-            timerProgressBar: true
+            confirmButtonText: 'Aceptar'
           });
         });
       }
     });
   };
-
+  
   const views = resellersData.filter(data => data.view === 0);
 
   return (

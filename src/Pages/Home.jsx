@@ -14,7 +14,7 @@ export default function Home() {
   const [itemsPerPage, setItemsPerPage] = useState(13);
 
   const getData = () => {
-    // fetch('http://localhost:8080/api/products?all=true')
+    // fetch('https://technologyline.com.ar/api/products?all=true')
     fetch('https://technologyline.com.ar/api/products?all=true')
     .then(response => response.json())
     .then(data => {
@@ -28,7 +28,7 @@ export default function Home() {
       console.error('Error loading products: ', e)
     })
 
-    // fetch('http://localhost:8080/api/clients')
+    // fetch('https://technologyline.com.ar/api/clients')
     fetch('https://technologyline.com.ar/api/clients')
     .then(response => response.json())
     .then(data => {
@@ -38,7 +38,7 @@ export default function Home() {
       console.error('Error loading client data: ', e)
     })
 
-    // fetch('http://localhost:8080/api/clients/getViews')
+    // fetch('https://technologyline.com.ar/api/clients/getViews')
     fetch('https://technologyline.com.ar/api/clients/getViews')
     .then(response => response.json())
     .then(data => {

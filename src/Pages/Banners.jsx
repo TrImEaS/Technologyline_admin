@@ -57,42 +57,22 @@ export default function Banners() {
             reader.readAsDataURL(file);
           });
         } else {
-          return { base64Image: null, to };
+          return Promise.resolve({ base64Image: null, to }); // Resolviendo directamente
         }
-      },
-      didOpen: () => {
-        document.getElementById('delete-button').addEventListener('click', () => {
-          Swal.showLoading(); // Mostrar loader antes de la solicitud
-          fetch('https://technologyline.com.ar/api/page/deleteBanner', {
-            method: 'POST',
-            headers: {
-              'Content-Type': 'application/json',
-            },
-            body: JSON.stringify({ id, name }),
-          })
-            .then(response => response.json())
-            .then(data => {
-              Swal.close(); // Cerrar loader al obtener respuesta
-              if (data.status === 'success') {
-                Swal.fire('¡Éxito!', 'Imagen eliminada correctamente', 'success');
-                fetchBanners();
-              } else {
-                Swal.fire('Error', data.message, 'error');
-              }
-            })
-            .catch(error => {
-              Swal.close(); // Cerrar loader si hay error
-              Swal.fire('Error', error.toString(), 'error');
-            });
-        });
       }
-    })
-    .then((result) => {
-      if (result.isConfirmed && result.value.base64Image) {
+    }).then((result) => {
+      if (result.isConfirmed) {
         const { base64Image, to } = result.value;
-        Swal.showLoading(); // Mostrar loader antes de la solicitud
-        fetch('https://technologyline.com.ar/api/page/uploadBanner', {
-          method: 'POST',
+  
+        if (!base64Image) {
+          Swal.fire('Error', 'No se seleccionó ninguna imagen para subir.', 'error');
+          return; // Salir si no hay imagen
+        }
+  
+        Swal.showLoading(); // Mostrar el loader
+  
+        fetch('https://technologyline.com.ar/api/page/setBanner', {
+          method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
           },
@@ -117,15 +97,39 @@ export default function Banners() {
             Swal.close(); // Cerrar loader si hay error
             Swal.fire('Error', error.toString(), 'error');
           });
-      } else if (result.isConfirmed && !result.value.base64Image) {
-        Swal.fire('Error', 'No se seleccionó ninguna imagen para subir.', 'error');
+      } else if (result.isDismissed) {
+        // Lógica para el botón cancelar si es necesario
       }
+    });
+  
+    // Para el botón de eliminar
+    document.getElementById('delete-button')?.addEventListener('click', () => {
+      Swal.showLoading(); // Mostrar loader
+  
+      fetch('https://technologyline.com.ar/api/page/deleteBanner', {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({ id, name }),
+      })
+        .then(response => response.json())
+        .then(data => {
+          Swal.close(); // Cerrar loader al obtener respuesta
+          if (data.status === 'success') {
+            Swal.fire('¡Éxito!', 'Imagen eliminada correctamente', 'success');
+            fetchBanners();
+          } else {
+            Swal.fire('Error', data.message, 'error');
+          }
+        })
+        .catch(error => {
+          Swal.close(); // Cerrar loader si hay error
+          Swal.fire('Error', error.toString(), 'error');
+        });
     });
   };
   
-  
-  console.log(desktopBanners)
-
   return (
     <section className="flex flex-col items-center gap-3 w-[75%] border-t h-full text-white py-5">
       <div className="flex flex-col gap-5 p-5 rounded-sm w-full">
