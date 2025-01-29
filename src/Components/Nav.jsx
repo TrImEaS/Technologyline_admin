@@ -3,6 +3,9 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { FaEnvelopeOpenText } from "react-icons/fa6";
 import axios from "axios";
 import Swal from 'sweetalert2';
+import env from './env.json';
+
+const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
 
 export default function Nav({ user }) {
   const path = useLocation().pathname;
@@ -10,7 +13,7 @@ export default function Nav({ user }) {
   const [iconView, setIconView] = useState(true);
 
   const getData = () => {
-    axios.get('https://technologyline.com.ar/api/page/resellersData')
+    axios.get(`${API_URL}/api/page/resellersData`)
       .then(res => {
         setResellersData(res.data);
       })
@@ -66,7 +69,7 @@ export default function Nav({ user }) {
   //         }
   //       });
 
-  //       fetch('https://technologyline.com.ar/api/products/jirejfdisbjfi4iwurjknvijioeb49/refresh-data', {
+  //       fetch(`${API_URL}/api/products/jirejfdisbjfi4iwurjknvijioeb49/refresh-data`, {
   //         method: 'POST',
   //         body: formData
   //       })
@@ -114,7 +117,7 @@ export default function Nav({ user }) {
         });
   
         // Make the fetch request without a file upload
-        fetch('https://technologyline.com.ar/api/admin/jirejfdisbjfi4iwurjknvijioeb49/refresh-data')
+        fetch(`${API_URL}/api/admin/jirejfdisbjfi4iwurjknvijioeb49/refresh-data`)
         .then(response => {
           if (response.ok) {
             return response.json();

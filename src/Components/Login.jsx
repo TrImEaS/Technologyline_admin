@@ -1,5 +1,9 @@
 import { useEffect, useState } from "react"
 import Swal from 'sweetalert2'
+import env from './env.json';
+
+const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
+
 
 export default function Login({ loginSetter, userSetter }) {
   const [username, setUsername] = useState('')
@@ -42,7 +46,7 @@ export default function Login({ loginSetter, userSetter }) {
       return;
     }
 
-    fetch('https://technologyline.com.ar/api/admin/login', {
+    fetch(`${API_URL}/api/admin/login`, {
       method: 'POST',
       headers: {
         'Content-Type': 'application/json'

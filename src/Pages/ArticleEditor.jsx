@@ -1,6 +1,9 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ProductCard from '../Components/ProductCard';
+import env from './env.json';
+
+const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
 
 export default function ArticleEditor() {
   const [products, setProducts] = useState([]);
@@ -16,7 +19,7 @@ export default function ArticleEditor() {
   useEffect(() => {
     (async function () {
       try {
-        const response = await fetch('https://technologyline.com.ar/api/products?all=true');
+        const response = await fetch(`${API_URL}/api/products?all=true`);
         if (!response.ok) {
           throw new Error('Error al obtener productos');
         }
@@ -66,7 +69,9 @@ export default function ArticleEditor() {
     if (!filter) {
       return filteredProducts;
     }
-    return filteredProducts.filter(product => product.status === true);
+
+    console.log(filteredProducts)
+    return filteredProducts.filter(product => product.stock > 0 && !product.name.includes('prueba'));
   };
 
   const totalProducts = getFilteredProducts().length;

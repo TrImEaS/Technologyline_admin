@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import Swal from 'sweetalert2';
 import 'sweetalert2/src/sweetalert2.scss';
+import env from './env.json';
+
+const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
+
 
 export default function Banners() {
   const [desktopBanners, setDesktopBanners] = useState([]);
@@ -11,7 +15,7 @@ export default function Banners() {
   }, []);
 
   const fetchBanners = () => {
-    fetch('https://technologyline.com.ar/api/page/getBanners')
+    fetch(`${API_URL}/api/page/getBanners`)
       .then(res => {
         if (!res.ok) {
           throw new Error('Error fetching banners');
@@ -71,7 +75,7 @@ export default function Banners() {
   
         Swal.showLoading(); // Mostrar el loader
   
-        fetch('https://technologyline.com.ar/api/page/setBanner', {
+        fetch(`${API_URL}/api/page/setBanner`, {
           method: 'PATCH',
           headers: {
             'Content-Type': 'application/json',
@@ -106,7 +110,7 @@ export default function Banners() {
     document.getElementById('delete-button')?.addEventListener('click', () => {
       Swal.showLoading(); // Mostrar loader
   
-      fetch('https://technologyline.com.ar/api/page/deleteBanner', {
+      fetch(`${API_URL}`/api/page/deleteBanner`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',

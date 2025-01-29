@@ -1,6 +1,10 @@
 import { useEffect, useState } from "react";
 import Swal from 'sweetalert2';
 import 'sweetalert2/src/sweetalert2.scss';
+import env from './env.json';
+
+const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
+
 
 export default function Test() {
   const [desktopBanners, setDesktopBanners] = useState([]);
@@ -11,7 +15,7 @@ export default function Test() {
   }, []);
 
   const fetchBanners = () => {
-    fetch('https://technologyline.com.ar/api/page/getBanners')
+    fetch(`${API_URL}/api/page/getBanners`)
       .then(res => {
         if (!res.ok) {
           throw new Error('Error fetching banners');
@@ -64,7 +68,7 @@ export default function Test() {
         document.getElementById('delete-button').addEventListener('click', () => {
           const to = document.getElementById('to').value;
           Swal.showLoading(); // Mostrar loader antes de la solicitud
-          fetch('https://technologyline.com.ar/api/page/deleteImage', {
+          fetch(`${API_URL}/api/page/deleteImage`, {
             method: 'POST',
             headers: {
               'Content-Type': 'application/json',
@@ -92,7 +96,7 @@ export default function Test() {
       if (result.isConfirmed && result.value.base64Image) {
         const { base64Image, to } = result.value;
         Swal.showLoading(); // Mostrar loader antes de la solicitud
-        fetch('https://technologyline.com.ar/api/page/uploadBanner', {
+        fetch(`${API_URL}`/api/page/uploadBanner`, {
           method: 'POST',
           headers: {
             'Content-Type': 'application/json',

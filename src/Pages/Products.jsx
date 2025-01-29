@@ -4,7 +4,9 @@ import Spinner from '../Components/Products/Spinner.jsx';
 import saleImg from '../Assets/hotsale-icon.svg';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
+import env from './env.json';
 
+const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
 const MySwal = withReactContent(Swal);
 
 export default function Products() {
@@ -33,7 +35,7 @@ export default function Products() {
 
     (async function fetchProduct() {
       try {
-        const response = await fetch('https://technologyline.com.ar/api/products?all=true');
+        const response = await fetch(`${API_URL}/api/products?all=true`);
         if (!response.ok) throw new Error('Error al obtener productos');
         const data = await response.json();
         const newProduct = data.find(p => p.sku === productQuery);
@@ -59,7 +61,7 @@ export default function Products() {
   useEffect(() => {
     const loadImages = async (product) => {
       const images = [];
-      const baseUrl = 'https://technologyline.com.ar/products-images';
+      const baseUrl = `${API_URL}/products-images`;
       const imagePromises = [product.sku].concat(Array.from({ length: 10 }, (_, i) => `${product.sku}_${i + 1}`))
         .map(async name => {
           const url = `${baseUrl}/${name}.jpg`;
@@ -117,7 +119,7 @@ export default function Products() {
   const handleEditField = async (field, newValue) => {
     if (newValue === product[field] || newValue === undefined) return alert(`Error, no se detectó cambios en ${field}.`);
     try {
-      const response = await fetch(`https://technologyline.com.ar/api/products/${product.id}`, {
+      const response = await fetch(`${API_URL}/api/products/${product.id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [field]: field === 'price' || field === 'discount' ? parseFloat(newValue) : newValue })

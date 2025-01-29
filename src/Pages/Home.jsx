@@ -2,6 +2,10 @@ import { useState, useEffect } from "react"
 import Swal from "sweetalert2"
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaDotCircle, FaTrashAlt } from "react-icons/fa"
 import axios from "axios"
+import env from './env.json';
+
+const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
+
 
 export default function Home() {
   const [topProducts, setTopProducts] = useState([])
@@ -14,8 +18,8 @@ export default function Home() {
   const [itemsPerPage, setItemsPerPage] = useState(13);
 
   const getData = () => {
-    // fetch('https://technologyline.com.ar/api/products?all=true')
-    fetch('https://technologyline.com.ar/api/products?all=true')
+    // fetch(`${API_URL}/api/products?all=true`)
+    fetch(`${API_URL}/api/products?all=true`)
     .then(response => response.json())
     .then(data => {
       const products = data.filter(product => product.total_views > 0)
@@ -28,8 +32,8 @@ export default function Home() {
       console.error('Error loading products: ', e)
     })
 
-    // fetch('https://technologyline.com.ar/api/clients')
-    fetch('https://technologyline.com.ar/api/clients')
+    // fetch(`${API_URL}/api/clients`)
+    fetch(`${API_URL}/api/clients`)
     .then(response => response.json())
     .then(data => {
       setClients(data)
@@ -38,8 +42,8 @@ export default function Home() {
       console.error('Error loading client data: ', e)
     })
 
-    // fetch('https://technologyline.com.ar/api/clients/getViews')
-    fetch('https://technologyline.com.ar/api/clients/getViews')
+    // fetch(`${API_URL}/api/clients/getViews`)
+    fetch(`${API_URL}/api/clients/getViews`)
     .then(response => response.json())
     .then(data => {
       setTotalViews(data.views)
@@ -84,7 +88,7 @@ export default function Home() {
   }
 
   const handleDeleteMail = (id) => {
-    axios.delete(`https://technologyline.com.ar/api/clients/deleteClient?id=${parseInt(id)}`)
+    axios.delete(`${API_URL}/api/clients/deleteClient?id=${parseInt(id)}`)
       .then(res => {
         if (res.status >= 200 && res.status < 300) {
           Swal.fire({

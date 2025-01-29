@@ -4,6 +4,10 @@ import page_icon from '../Assets/page-icon.jpeg';
 import saleImg from '../Assets/hotsale-icon.svg';
 import Swal from "sweetalert2";
 import Spinner from "./Products/Spinner";
+import env from './env.json';
+
+const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
+
 
 export default function ProductCard({ product, onClick }) {
   const [imageError, setImageError] = useState(false);
@@ -44,7 +48,7 @@ export default function ProductCard({ product, onClick }) {
         didOpen: () => Swal.showLoading()
       });
 
-      const response = await fetch(`https://technologyline.com.ar/api/products/${id}`, {
+      const response = await fetch(`${API_URL}/api/products/${id}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ adminStatus: !actualStatus })

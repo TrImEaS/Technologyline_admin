@@ -1,6 +1,9 @@
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaStar, FaTimes } from "react-icons/fa"
+import env from './env.json';
+
+const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
 
 export default function Queries() {
   const [resellersData, setResellersData] = useState([])
@@ -9,7 +12,7 @@ export default function Queries() {
   const [itemsPerPage, setItemsPerPage] = useState(13);
 
   const getResellersData = () => {
-    axios.get('https://technologyline.com.ar/api/page/resellersData')
+    axios.get(`${API_URL}/api/page/resellersData`)
     .then(res => {
       const mapped = res.data.map(data => {
         return {
@@ -41,7 +44,7 @@ export default function Queries() {
   },[])
 
   const handleSelectedMail = (mail) => {
-    axios.patch(`https://technologyline.com.ar/api/page/check-view/${mail.id}`)
+    axios.patch(`${API_URL}/api/page/check-view/${mail.id}`)
       .then(res => console.log(res))
       .catch(e => console.error(e))
     resellersData[mail.id - 1].view = 1
