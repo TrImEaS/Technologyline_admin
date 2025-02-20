@@ -21,3 +21,7 @@
 b{
   color: rgba(255, 132, 0, 0.872);
 }
+
+.btn {
+  @apply bg-black bg-opacity-65 text-white font-bold text-sm px-2 py-2 rounded-md hover:bg-opacity-100 hover:bg-white hover:text-gray-600 duration-300;
+}

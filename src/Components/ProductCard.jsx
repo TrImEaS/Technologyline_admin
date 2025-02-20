@@ -4,7 +4,7 @@ import page_icon from '../Assets/page-icon.jpeg';
 import saleImg from '../Assets/hotsale-icon.svg';
 import Swal from "sweetalert2";
 import Spinner from "./Products/Spinner";
-import env from './env.json';
+import env from '../../env.json';
 
 const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
 

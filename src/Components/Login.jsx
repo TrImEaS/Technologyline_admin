@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react"
 import Swal from 'sweetalert2'
-import env from './env.json';
+import env from '../../env.json';
 
 const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
 

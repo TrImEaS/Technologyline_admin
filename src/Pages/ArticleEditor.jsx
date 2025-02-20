@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import ProductCard from '../Components/ProductCard';
-import env from './env.json';
+import env from '../../env.json';
 
 const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
 

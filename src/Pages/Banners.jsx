@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import Swal from 'sweetalert2';
 import 'sweetalert2/src/sweetalert2.scss';
-import env from './env.json';
+import env from '../../env.json';
 
 const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
 
@@ -37,7 +37,7 @@ export default function Banners() {
         <div class="flex flex-col gap-2 items-center justify-center">
           <input type="file" id="upload-file" class="swal2-input w-full" accept="image/*">
           <input type="text" id="to" class="swal2-input placeholder:text-sm placeholder:text-gray-400 w-full" placeholder="Ej: https://technologyline.com.ar/search/?category=tecnologia">
-          <button type="button" id="delete-button" class="bg-red-500 text-white px-4 py-2 rounded hover:bg-red-600 transition duration-300">Eliminar</button>
+          <button type="button" id="delete-button" class="btn">Eliminar</button>
         </div>
       `,
       showCancelButton: true,
@@ -49,68 +49,58 @@ export default function Banners() {
       },
       preConfirm: () => {
         const file = Swal.getPopup().querySelector('#upload-file').files[0];
-        const to = Swal.getPopup().querySelector('#to').value;
-  
+    
+        if(!file)
+          return Promise.reject(new Error('No se seleccionó ninguna imagen para subir'));
+
         if (file) {
-          return new Promise((resolve) => {
-            const reader = new FileReader();
-            reader.onload = () => {
-              const base64Image = reader.result.replace(/^data:image\/[a-z]+;base64,/, '');
-              resolve({ base64Image, to });
-            };
-            reader.readAsDataURL(file);
-          });
-        } else {
-          return Promise.resolve({ base64Image: null, to }); // Resolviendo directamente
+          const formData = new FormData();
+          formData.append('id', id); 
+          formData.append('name', name); 
+          formData.append('to', Swal.getPopup().querySelector('#to').value); 
+          formData.append('image', file);
+          
+          return formData; 
         }
       }
-    }).then((result) => {
+    })
+    .then((result) => {
       if (result.isConfirmed) {
-        const { base64Image, to } = result.value;
-  
-        if (!base64Image) {
-          Swal.fire('Error', 'No se seleccionó ninguna imagen para subir.', 'error');
-          return; // Salir si no hay imagen
-        }
-  
+        const formData = result.value;
+    
         Swal.showLoading(); // Mostrar el loader
-  
+    
         fetch(`${API_URL}/api/page/setBanner`, {
           method: 'PATCH',
-          headers: {
-            'Content-Type': 'application/json',
-          },
-          body: JSON.stringify({ id, name, image: base64Image, to }),
+          body: formData,  // Enviar FormData como body de la solicitud
         })
-          .then(response => {
-            if (!response.ok) {
-              throw new Error('Error en la respuesta del servidor');
-            }
-            return response.json();
-          })
-          .then(data => {
-            Swal.close(); // Cerrar loader al obtener respuesta
-            if (data.status === 'success') {
-              Swal.fire('¡Éxito!', 'Imagen subida correctamente', 'success');
-              fetchBanners();
-            } else {
-              Swal.fire('Error', data.message, 'error');
-            }
-          })
-          .catch(error => {
-            Swal.close(); // Cerrar loader si hay error
-            Swal.fire('Error', error.toString(), 'error');
-          });
-      } else if (result.isDismissed) {
-        // Lógica para el botón cancelar si es necesario
+        .then(response => {
+          if (!response.ok) {
+            throw new Error('Error en la respuesta del servidor');
+          }
+          return response.json();
+        })
+        .then(data => {
+          Swal.close(); // Cerrar loader
+          if (data.status === 'success') {
+            Swal.fire('¡Éxito!', 'Imagen subida correctamente', 'success');
+            fetchBanners();
+          } else {
+            Swal.fire('Error', data.message, 'error');
+          }
+        })
+        .catch(error => {
+          Swal.close(); // Cerrar loader en caso de error
+          Swal.fire('Error', error.toString(), 'error');
+        });
       }
     });
   
-    // Para el botón de eliminar
+    // Lógica para el botón eliminar
     document.getElementById('delete-button')?.addEventListener('click', () => {
       Swal.showLoading(); // Mostrar loader
-  
-      fetch(`${API_URL}`/api/page/deleteBanner`, {
+    
+      fetch(`${API_URL}/api/page/deleteBanner`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -119,7 +109,7 @@ export default function Banners() {
       })
         .then(response => response.json())
         .then(data => {
-          Swal.close(); // Cerrar loader al obtener respuesta
+          Swal.close(); // Cerrar loader
           if (data.status === 'success') {
             Swal.fire('¡Éxito!', 'Imagen eliminada correctamente', 'success');
             fetchBanners();
@@ -128,7 +118,7 @@ export default function Banners() {
           }
         })
         .catch(error => {
-          Swal.close(); // Cerrar loader si hay error
+          Swal.close(); // Cerrar loader en caso de error
           Swal.fire('Error', error.toString(), 'error');
         });
     });
@@ -139,7 +129,7 @@ export default function Banners() {
       <div className="flex flex-col gap-5 p-5 rounded-sm w-full">
         <p className="w-full text-2xl text-center font-bold flex flex-col">
           Resoluciones recomendadas: <br /> Modo escritorio (4001x1206px) - Modo mobile (863x1128px)
-          <span className="text-center text-sm pt-2 text-gray-300">{`(Es necesario tener dos tipo de banners uno para mobile o tablet si es muy chica, y otro para escritorio, ya que sino no se muestran correctamente.)`}</span>
+          <span className="text-center text-sm pt-2 text-gray-300">{'(Es necesario tener dos tipo de banners uno para mobile o tablet si es muy chica, y otro para escritorio, ya que sino no se muestran correctamente.)'}</span>
         </p>
 
         <main className="flex justify-around gap-10 max-sm:flex-wrap rounded-lg">

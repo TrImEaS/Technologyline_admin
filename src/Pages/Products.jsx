@@ -1,20 +1,19 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Spinner from '../Components/Products/Spinner.jsx';
-import saleImg from '../Assets/hotsale-icon.svg';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import env from './env.json';
+import env from '../../env.json';
+import axios from 'axios';
 
 const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
 const MySwal = withReactContent(Swal);
 
 export default function Products() {
-  const [loadedImages, setLoadedImages] = useState([]);
-  const [loadingImages, setLoadingImages] = useState(false);
   const [product, setProduct] = useState(null);
+  const [productImages, setProductImages] = useState([]);
+  const [selectedImg, setSelectedImg] = useState('');
   const [loading, setLoading] = useState(true);
-  const [selectedImg, setSelectedImg] = useState(null);
   const [description, setDescription] = useState(null);
   const [specifications, setSpecifications] = useState(null);
   const [price, setPrice] = useState(0);
@@ -25,6 +24,7 @@ export default function Products() {
   const navigate = useNavigate();
 
   useEffect(() => {
+    setLoading(true)
     const query = new URLSearchParams(location.search);
     const productQuery = query.get('product');
     
@@ -33,57 +33,27 @@ export default function Products() {
       return;
     }
 
-    (async function fetchProduct() {
-      try {
-        const response = await fetch(`${API_URL}/api/products?all=true`);
-        if (!response.ok) throw new Error('Error al obtener productos');
-        const data = await response.json();
-        const newProduct = data.find(p => p.sku === productQuery);
-        if (!newProduct) return navigate('/admin/page/error');
+    axios.get(`${API_URL}/api/products?all=true`)
+    .then(res => {
+      const data = res.data
+      const newProduct = data.find(p => p.sku === productQuery);
+      if (!newProduct) return navigate('/admin/page/error');
 
-        setLoadingImages(true);
-        setProduct(newProduct);
-        setSelectedImg(newProduct.img_base);
-        setDescription(newProduct.descriptions);
-        setName(newProduct.name);
-        setPrice(newProduct.price);
-        setDiscount(newProduct.discount);
-        setSpecifications(newProduct.specifications);
-        document.title = `${newProduct.name} | Technology Line`;
-        setLoading(false);
-      } 
-      catch (err) {
-        console.log(err);
-      }
-    })();
+      setProduct(newProduct);
+      setProductImages(newProduct.img_urls);
+      setSelectedImg(newProduct.img_urls[0]);
+      setDescription(newProduct.descriptions);
+      setName(newProduct.name);
+      setPrice(newProduct.price);
+      setDiscount(newProduct.discount);
+      setSpecifications(newProduct.specifications);
+
+      document.title = `${newProduct.name} | Technology Line`;
+    })
+    .catch(e => console.error(e))
+    .finally(() => setLoading(false))
   }, [location.search, navigate]);
-
-  useEffect(() => {
-    const loadImages = async (product) => {
-      const images = [];
-      const baseUrl = `${API_URL}/products-images`;
-      const imagePromises = [product.sku].concat(Array.from({ length: 10 }, (_, i) => `${product.sku}_${i + 1}`))
-        .map(async name => {
-          const url = `${baseUrl}/${name}.jpg`;
-          if (await imageExists(url)) images.push(url);
-          return url;
-        });
-
-      await Promise.all(imagePromises);
-      setLoadedImages(images);
-      setLoadingImages(false);
-    };
-
-    if (product) loadImages(product);
-  }, [product]);
-
-  const imageExists = (url) => new Promise(resolve => {
-    const img = new Image();
-    img.onload = () => resolve(true);
-    img.onerror = () => resolve(false);
-    img.src = url;
-  });
-
+  
   const editField = (field) => {
     const titles = { desc: 'Descripción', spec: 'Especificaciones', price: 'Precio', discount: 'Descuento', name: 'Nombre' };
     const inputs = { desc: description, spec: specifications, price, discount, name };
@@ -101,7 +71,8 @@ export default function Products() {
         if (!value.trim()) return 'El campo no puede estar vacío';
         if (value === inputs[field]) return 'No se detectaron cambios, intente nuevamente.';
       }
-    }).then((result) => {
+    })
+    .then((result) => {
       if (result.isConfirmed) {
         const newValue = result.value;
         const handlers = {
@@ -128,7 +99,8 @@ export default function Products() {
       alert('Producto editado con éxito!');
       setProduct(prev => ({ ...prev, [field]: newValue }));
       window.location.reload()
-    } catch (err) {
+    } 
+    catch (err) {
       console.log(err);
       alert('Error al cambiar el valor, 500 servidor error');
     }
@@ -149,23 +121,20 @@ export default function Products() {
     <section className='flex flex-col items-center h-full w-full gap-y-10 pb-14 max-md:pt-10 z-10 bg-gradient-to-tl from-[#0d1717] to-[#f9bf89] text-white'>
       <header className='w-[90%] sm:mt-5 relative h-full flex max-md:flex-col max-md:items-center sm:p-5 rounded-3xl py-5'>
         <section className='flex flex-col items-center gap-y-5 relative w-[55%] max-sm:w-full h-full min-h-[300px] max-h-[500px]'>
-          {discount > 0 && <img className="absolute h-14 w-14 right-7 top-10" src={saleImg} alt="Sale" />}
           <div className='h-[300px] w-[300px]'>
             <img className='h-full w-full object-contain rounded-lg' src={selectedImg} alt="Product" />
           </div>
-          {loadingImages ? <Spinner /> : (
-            <div className='flex justify-center w-full h-full rounded-lg max-h-[100px]'>
-              {loadedImages.map((img, index) => (
-                <img
-                  className='h-24 w-24 cursor-pointer object-contain rounded-lg'
-                  onClick={() => setSelectedImg(img)}
-                  key={index}
-                  src={img}
-                  alt={`Thumbnail ${index + 1}`}
-                />
-              ))}
-            </div>
-          )}
+          <div className='flex justify-center w-full h-full rounded-lg max-h-[100px]'>
+            {productImages && productImages.map((img, index) => (
+              <img
+                className='h-24 w-24 cursor-pointer object-contain rounded-lg'
+                onClick={() => setSelectedImg(img)}
+                key={index}
+                src={img}
+                alt={`Thumbnail ${index + 1}`}
+              />
+            ))}
+          </div>
         </section>
         <section className='flex flex-col w-[45%] justify-start max-sm:px-10 items-start h-fit max-md:w-full border-2 rounded-lg p-8 sm:mb-10 shadow-[#fafafa] shadow-lg'>
           <div className='flex gap-3'>
@@ -193,9 +162,9 @@ export default function Products() {
             </div>
           </div>
           <div className='w-full flex max-md:justify-center items-center'>
-            <a className='rounded-xl flex items-center justify-center text-lg border-2 bg-white text-black border-black font-bold hover:bg-black hover:text-white active:text-sm active:duration-0 z-40 py-1 px-2 duration-300 w-[200px] h-[50px]'>
+            <span className='btn'>
               Consultar Articulo
-            </a>
+            </span>
           </div>
         </section>
       </header>
