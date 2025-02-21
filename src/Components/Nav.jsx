@@ -3,9 +3,8 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { FaEnvelopeOpenText } from "react-icons/fa6";
 import axios from "axios";
 import Swal from 'sweetalert2';
-import env from '../../env.json';
 
-const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
+const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 
 export default function Nav({ user }) {
   const path = useLocation().pathname;
@@ -42,7 +41,122 @@ export default function Nav({ user }) {
     return () => clearInterval(interval);
   }, []);
 
-  const handleUpdateStock = () => {
+  // const handleUpdateStock = () => {
+  //   Swal.fire({
+  //     title: 'Selecciona el archivo de stock',
+  //     input: 'file',
+  //     inputAttributes: { accept: '.xls,.xlsx' },
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Actualizar Stock',
+  //     cancelButtonText: 'Cancelar',
+  //     preConfirm: (file) => {
+  //       if (!file) {
+  //         Swal.showValidationMessage('Debes seleccionar un archivo Excel');
+  //         return false;
+  //       }
+  //       return file;
+  //     }
+  //   }).then((result) => {
+  //     if (result.isConfirmed && result.value) {
+  //       const formData = new FormData();
+  //       formData.append('filename', 'products');
+  //       formData.append('file', result.value);
+  
+        
+  //       console.log("📂 Subiendo archivo de stock...", formData);
+  //       Swal.fire({ title: 'Subiendo archivo...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+  
+  //       axios.post(`${API_URL}/api/page/uploadExcel`, formData, {
+  //         headers: { 'Content-Type': 'multipart/form-data' } // Obligatorio para Multer
+  //       })
+  //       .then(response => {
+  //         console.log("✅ Archivo subido:", response.data);
+  
+  //         Swal.fire({ title: 'Actualizando stock...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+  
+  //         return axios.get(`${API_URL}/api/admin/jirejfdisbjfi4iwurjknvijioeb49/refresh_data`);
+  //       })
+  //       .then(response => {
+  //         Swal.fire({ icon: 'success', title: 'Stock actualizado correctamente', confirmButtonText: 'Aceptar' });
+  //       })
+  //       .catch(error => {
+  //         console.error('❌ Error:', error);
+  //         Swal.fire({ icon: 'error', title: 'Error al actualizar stock', text: '¡Inténtalo nuevamente!', confirmButtonText: 'Aceptar' });
+  //       });
+  //     }
+  //   });
+  // };
+  
+  // const handleUpdatePrices = () => {
+  //   Swal.fire({
+  //     title: 'Selecciona el archivo de precios)',
+  //     input: 'file',
+  //     inputAttributes: { accept: '.xls,.xlsx' },
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Actualizar Precios',
+  //     cancelButtonText: 'Cancelar',
+  //     preConfirm: (file) => {
+  //       if (!file) {
+  //         Swal.showValidationMessage('Debes seleccionar un archivo Excel');
+  //         return false;
+  //       }
+  //       return file;
+  //     }
+  //   }).then((result) => {
+  //     if (result.isConfirmed && result.value) {
+  //       const formData = new FormData();
+  //       formData.append('filename', 'prices'); 
+  //       formData.append('file', result.value);
+    
+  //       console.log("📂 Subiendo archivo de precios...", formData);
+    
+  //       Swal.fire({ title: 'Subiendo archivo...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    
+  //       axios.post(`${API_URL}/api/page/uploadExcel`, formData, {
+  //         headers: { 'Content-Type': 'multipart/form-data' } // Obligatorio para Multer
+  //       })
+  //       .then(response => {
+  //         console.log("✅ Archivo subido:", response.data);
+    
+  //         Swal.fire({ title: 'Actualizando precios...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    
+  //         return axios.get(`${API_URL}/api/admin/jirejfdisbjfi4iwurjknvijioeb49/refresh_prices`);
+  //       })
+  //       .then(response => {
+  //         Swal.fire({ icon: 'success', title: 'Precios actualizados correctamente', confirmButtonText: 'Aceptar' });
+  //       })
+  //       .catch(error => {
+  //         console.error('❌ Error:', error);
+  //         Swal.fire({ icon: 'error', title: 'Error al actualizar precios', text: '¡Inténtalo nuevamente!', confirmButtonText: 'Aceptar' });
+  //       });
+  //     }
+  //   });
+  // };
+
+  // const handleUpdateImages = () => {
+  //   Swal.fire({
+  //     title: 'Estas seguro que desea actualizar las imagenes?',
+  //     showCancelButton: true,
+  //     confirmButtonText: 'Actualizar Imagenes',
+  //     cancelButtonText: 'Cancelar',
+  //   })
+  //   .then((result) => {
+  //     if (result.isConfirmed && result.value) {
+  //       Swal.fire({ title: 'Actualizando imagenes...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
+    
+  //       axios.get(`${API_URL}/api/admin/jirejfdisbjfi4iwurjknvijioeb49/refresh_images`)
+  //       .then(response => {
+  //         Swal.fire({ icon: 'success', title: 'Precios actualizados correctamente', confirmButtonText: 'Aceptar' });
+  //       })
+  //       .catch(error => {
+  //         console.error('❌ Error:', error);
+  //         Swal.fire({ icon: 'error', title: 'Error al actualizar precios', text: '¡Inténtalo nuevamente!', confirmButtonText: 'Aceptar' });
+  //       });
+  //     }
+  //   });
+  // };
+  
+  const handleUpdateData = () => {
     Swal.fire({
       title: 'Selecciona el archivo de stock',
       input: 'file',
@@ -87,76 +201,7 @@ export default function Nav({ user }) {
       }
     });
   };
-  
-  const handleUpdatePrices = () => {
-    Swal.fire({
-      title: 'Selecciona el archivo de precios)',
-      input: 'file',
-      inputAttributes: { accept: '.xls,.xlsx' },
-      showCancelButton: true,
-      confirmButtonText: 'Actualizar Precios',
-      cancelButtonText: 'Cancelar',
-      preConfirm: (file) => {
-        if (!file) {
-          Swal.showValidationMessage('Debes seleccionar un archivo Excel');
-          return false;
-        }
-        return file;
-      }
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        const formData = new FormData();
-        formData.append('filename', 'prices'); 
-        formData.append('file', result.value);
-    
-        console.log("📂 Subiendo archivo de precios...", formData);
-    
-        Swal.fire({ title: 'Subiendo archivo...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    
-        axios.post(`${API_URL}/api/page/uploadExcel`, formData, {
-          headers: { 'Content-Type': 'multipart/form-data' } // Obligatorio para Multer
-        })
-        .then(response => {
-          console.log("✅ Archivo subido:", response.data);
-    
-          Swal.fire({ title: 'Actualizando precios...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    
-          return axios.get(`${API_URL}/api/admin/jirejfdisbjfi4iwurjknvijioeb49/refresh_prices`);
-        })
-        .then(response => {
-          Swal.fire({ icon: 'success', title: 'Precios actualizados correctamente', confirmButtonText: 'Aceptar' });
-        })
-        .catch(error => {
-          console.error('❌ Error:', error);
-          Swal.fire({ icon: 'error', title: 'Error al actualizar precios', text: '¡Inténtalo nuevamente!', confirmButtonText: 'Aceptar' });
-        });
-      }
-    });
-  };
 
-  const handleUpdateImages = () => {
-    Swal.fire({
-      title: 'Estas seguro que desea actualizar las imagenes?',
-      showCancelButton: true,
-      confirmButtonText: 'Actualizar Imagenes',
-      cancelButtonText: 'Cancelar',
-    })
-    .then((result) => {
-      if (result.isConfirmed && result.value) {
-        Swal.fire({ title: 'Actualizando imagenes...', allowOutsideClick: false, didOpen: () => Swal.showLoading() });
-    
-        axios.get(`${API_URL}/api/admin/jirejfdisbjfi4iwurjknvijioeb49/refresh_images`)
-        .then(response => {
-          Swal.fire({ icon: 'success', title: 'Precios actualizados correctamente', confirmButtonText: 'Aceptar' });
-        })
-        .catch(error => {
-          console.error('❌ Error:', error);
-          Swal.fire({ icon: 'error', title: 'Error al actualizar precios', text: '¡Inténtalo nuevamente!', confirmButtonText: 'Aceptar' });
-        });
-      }
-    });
-  };
-  
   const views = resellersData.filter(data => data.view === 0);
 
   return (
@@ -188,16 +233,16 @@ export default function Nav({ user }) {
           Act. img. de productos
         </button> */}
 
-        <button 
-          onClick={handleUpdateStock}
-          className='btn'>
-          Actualizar stock
-        </button>
-
-        <button 
+        {/* <button 
           onClick={handleUpdatePrices}
           className='btn'>
-          Actualizar precios
+          Actualizar stock
+        </button> */}
+
+        <button 
+          onClick={handleUpdateData}
+          className='btn'>
+          Actualizar pagina
         </button>
 
         <span className='text-xl'>

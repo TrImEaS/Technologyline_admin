@@ -3,10 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import Spinner from '../Components/Products/Spinner.jsx';
 import Swal from 'sweetalert2';
 import withReactContent from 'sweetalert2-react-content';
-import env from '../../env.json';
 import axios from 'axios';
 
-const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
+const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 const MySwal = withReactContent(Swal);
 
 export default function Products() {

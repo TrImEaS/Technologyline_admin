@@ -7,8 +7,8 @@ import Nav from './Components/Nav.jsx'
 import Products from './Pages/Products.jsx'
 import Error from './Pages/Error.jsx'
 import Queries from './Pages/Queries.jsx'
-// import Test from './Components/Test.jsx'
 import Banners from './Pages/Banners.jsx'
+import { ProductsProvider } from './Context/ProductsContext.jsx'
 
 export default function App() {
   const [login, setLogin] = useState(false)
@@ -16,21 +16,25 @@ export default function App() {
 
   return (
     login === false 
-    ? <Login loginSetter={setLogin} userSetter={setUser}/> :
-    <main className='relative flex flex-col items-center bg-gradient-to-br from-[#ffb400] to-[#8b2323] min-w-screen min-h-screen h-full font-body'>
-      <ScrollToTopOnLocationChange />
-      <Nav user={user}/>
-      <Routes>
-        <Route path="/admin/page/" element={<Home/>}/>
-        <Route path="/admin/page/article_editor" element={<ArticleEditor/>}/>
-        <Route path="/admin/page/products" element={<Products/>}/>
-        <Route path='/admin/page/queries' element={<Queries/>}/>
-        <Route path='/admin/page/banners' element={<Banners/>}/>
-        {/* <Route path='/admin/page/test' element={<Test/>}/> */}
-        <Route path="/admin/page/error" element={<Error/>}/>
-      </Routes>
-      {/* <div className='absolute background min-h-screen h-full w-full'></div> */}
-    </main>
+    ? <Login loginSetter={setLogin} userSetter={setUser}/> 
+    : (
+      <main className='relative flex flex-col items-center bg-gradient-to-br from-[#111] to-[#222] min-w-screen min-h-screen h-full font-consolas'>
+        <ProductsProvider>
+          <ScrollToTopOnLocationChange />
+          <Nav user={user}/>
+          <Routes>
+            <Route path="/admin/page/" element={<Home/>}/>
+            <Route path="/admin/page/article_editor" element={<ArticleEditor/>}/>
+            <Route path="/admin/page/products" element={<Products/>}/>
+            <Route path='/admin/page/queries' element={<Queries/>}/>
+            <Route path='/admin/page/banners' element={<Banners/>}/>
+            {/* <Route path='/admin/page/test' element={<Test/>}/> */}
+            <Route path="/admin/page/error" element={<Error/>}/>
+          </Routes>
+          {/* <div className='absolute background min-h-screen h-full w-full'></div> */}
+        </ProductsProvider>
+      </main>
+    )
   )
 }
 

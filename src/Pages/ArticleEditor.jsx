@@ -1,13 +1,10 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
+import { useProducts } from '../Context/ProductsContext';
 import ProductCard from '../Components/ProductCard';
-import env from '../../env.json';
-
-const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
 
 export default function ArticleEditor() {
-  const [products, setProducts] = useState([]);
-  const [loading, setLoading] = useState(true);
+  const { products, loading } = useProducts()
   const [startIndex, setStartIndex] = useState(0);
   const [keyword, setKeyword] = useState('');
   const [filter, setFilter] = useState(false);
@@ -15,23 +12,6 @@ export default function ArticleEditor() {
   const maxPageButtons = 5;
   const location = useLocation();
   const navigate = useNavigate(); 
-
-  useEffect(() => {
-    (async function () {
-      try {
-        const response = await fetch(`${API_URL}/api/products?all=true`);
-        if (!response.ok) {
-          throw new Error('Error al obtener productos');
-        }
-        const data = await response.json();
-        setProducts(data);
-        setLoading(false);
-      } 
-      catch (err) {
-        console.log(err);
-      }
-    })();
-  }, []);
 
   useEffect(() => {
     const handleResize = () => {  
@@ -130,7 +110,7 @@ export default function ArticleEditor() {
   const displayedProducts = getFilteredProducts().slice(startIndex, startIndex + productsPerPage);
 
   return (
-    <section className="flex flex-col justify-center items-center h-full min-h-[500px] w-[90%] z-10 py-5">
+    <section className="flex flex-col justify-center items-center h-full min-h-[500px] w-[80%] z-10 py-5">
       <article className="flex w-full flex-col gap-10 items-center">
         <div className='flex gap-5 justify-center items-center'>
           <div className='flex border bg-gray-100 rounded-full flex-col w-[500px] text-black gap-2 justify-center items-center px-2 z-[9999]'>
@@ -172,12 +152,12 @@ export default function ArticleEditor() {
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-3 w-full min-h-[400px]">
+        <div className="flex flex-wrap justify-center gap-1 w-full min-h-[400px]">
           {displayedProducts.map(product => (
             <ProductCard 
-              key={product.id+product.name} 
+              key={product.id + product.name} 
               product={product}
-              onClick={() => navigate(`/admin/page/products?product=${product.sku}`)} 
+              loading={loading} 
             />
           ))}
         </div>

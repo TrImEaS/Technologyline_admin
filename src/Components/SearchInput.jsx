@@ -1,9 +1,7 @@
 import { NavLink, useNavigate } from 'react-router-dom'
 import { useState, useEffect, useRef } from 'react'
-import env from '../../env.json';
 
-const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
-
+const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 
 export default function SearchInput() {
   const [keyword, setKeyword] = useState('')

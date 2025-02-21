@@ -2,9 +2,8 @@ import { useState, useEffect } from "react"
 import Swal from "sweetalert2"
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaDotCircle, FaTrashAlt } from "react-icons/fa"
 import axios from "axios"
-import env from '../../env.json';
 
-const API_URL = import.meta.env.MODE === 'production' ? env.API_URL_PROD : env.API_URL;
+const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 
 
 export default function Home() {
@@ -18,7 +17,6 @@ export default function Home() {
   const [itemsPerPage, setItemsPerPage] = useState(13);
 
   const getData = () => {
-    // fetch(`${API_URL}/api/products?all=true`)
     fetch(`${API_URL}/api/products?all=true`)
     .then(response => response.json())
     .then(data => {
@@ -142,7 +140,7 @@ export default function Home() {
           <h1 className="font-semibold text-xl text-[#fafafa]">TOP mas consultados:</h1> 
           <div className="flex flex-col gap-y-5">
             {topProducts.slice(0,5).map((product, index) =>(
-              <div key={product.id} className="flex flex-col">
+              <div key={product.id + index} className="flex flex-col">
                 <p className="font-bold">
                   TOP {index + 1}: <span className="font-normal">{product.sku}</span>
                 </p>
