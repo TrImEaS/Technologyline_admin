@@ -6,14 +6,13 @@ import Spinner from "./Products/Spinner";
 
 const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 
-
 export default function ProductCard({ product, loading }) {
   const [actualStatus, setActualStatus] = useState(product.adminStatus);
   const formattedPrice = product.price_list_1 
     ? `$${parseFloat(product.price_list_1).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`
     : '-----';
   
-  const handleProductStatus = async (id) => {
+  const handleProductStatus = async (sku) => {
     try {
       Swal.fire({
         title: 'Modificando producto...',
@@ -22,7 +21,7 @@ export default function ProductCard({ product, loading }) {
         didOpen: () => Swal.showLoading()
       });
 
-      const response = await fetch(`${API_URL}/api/products/${id}`, {
+      const response = await fetch(`${API_URL}/api/products?sku=${sku}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ adminStatus: !actualStatus })
@@ -51,9 +50,9 @@ export default function ProductCard({ product, loading }) {
   };
 
   return (
-    <section className="flex box-border items-center border justify-center bg-white hover:bg-slate-600 duration-300 text-gray-600 hover:text-white rounded-lg px-1 py-4 w-full h-[90px]">
+    <section className="flex box-border items-center border-2 shadow-page-hover justify-center bg-white duration-300 text-gray-600 rounded-lg px-1 py-4 w-full h-[80px]">
       <article className="flex w-full h-full border-r border-gray-400 px-1">
-        <header className="relative w-[200px] h-full border-r border-gray-400 box-border">
+        <header className="relative image-container w-[200px] h-full border-r border-gray-400 box-border">
           {loading && (
             <div className="absolute inset-0 flex items-center justify-center">
               <Spinner />
@@ -64,23 +63,28 @@ export default function ProductCard({ product, loading }) {
             src={product.img_base}
             alt={product.name}
             className={`w-full h-full object-contain scale-150 rounded-lg`}
-            onError={(e) => e.target.src = page_icon}
+            onError={(e) => e.target.src = 'https://technologyline.com.ar/banners-images/Assets/page-icon.jpeg'}
           />
         </header>
 
         <div className="w-full text-sm h-full box-border flex items-center">
-          <p className="min-w-[15%] px-5 flex items-center justify-center h-full border-r border-gray-400">SKU: <span>{product.sku}</span></p>
-          <p className="w-full flex items-center justify-center h-full border-r border-gray-400 text-xs">{product.name}</p>
+          <p className="min-w-[15%] gap-1 px-5 flex items-center justify-center h-full border-r border-gray-400">
+            <span>SKU:</span> 
+            <span>{product.sku}</span></p>
+          <p className="w-full flex items-center justify-center h-full border-r border-gray-400 text-xs text-center">{product.name}</p>
           <p className="min-w-[15%] text-xs flex flex-col items-center justify-center h-full border-r border-gray-400 font-bold">
             <span>Precio Lista:</span>
             <span>{formattedPrice}</span>
           </p>
-          <p className="min-w-[15%] flex items-center justify-center h-full">Stock: <span>{product.stock}</span></p>
+          <p className="min-w-[15%] gap-1 flex items-center justify-center h-full">
+            <span>Stock:</span>  
+            <span>{product.stock}</span>
+          </p>
         </div>
       </article>
 
       <article className="min-w-[10%] pl-5 flex items-center h-full text-xs border-gray-400 px-1 font-bold">
-        <ul className="flex flex-col gap-2">
+        <ul className="flex flex-col gap-1">
           <NavLink
             className="text-blue-500 hover:text-cyan-400 duration-300 w-10"
             to={`/admin/page/products?product=${product.sku}`}
@@ -88,15 +92,16 @@ export default function ProductCard({ product, loading }) {
             Editar
           </NavLink>
 
-          <p onClick={() => handleProductStatus(product.id)} className="flex relative items-center h-5 gap-x-1 cursor-pointer w-fit">
-            <span className={`${actualStatus ? 'text-green-500' : 'text-red-500'}`}>{actualStatus ? 'Activo' : 'Desactivado'}</span>
+          <p onClick={() => handleProductStatus(product.sku)} className="flex relative items-center gap-x-1 cursor-pointer w-fit">
+            <span className={`${actualStatus ? 'text-green-400' : 'text-red-500'}`}>{actualStatus ? 'Activo' : 'Desactivado'}</span>
           </p>
 
           <p className="flex flex-col">
-            <span className={`${!actualStatus || !product.status ? 'text-red-500' : 'text-green-500'}`}>
+            <span className={`${!actualStatus || !product.status ? 'text-red-500' : 'text-green-400'}`}>
               {
-                !product.status ? 'Sin stock'
-                : 'En stock'
+                !product.status 
+                  ? 'Sin stock'
+                  : 'En stock'
               }
             </span>
           </p>

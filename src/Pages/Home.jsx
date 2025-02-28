@@ -124,28 +124,35 @@ export default function Home() {
     ? 
     <div className="text-2xl">Loading...</div>
     :
-    <section className="relative flex flex-col w-3/4 justify-center gap-5 min-h-[400px] py-10">
-      <div className="flex w-full justify-center gap-x-10">
-        <section className="flex flex-col items-center gap-y-5 pt-4 max-w-[350px] min-h-[300px] min-w-[260px] rounded-lg z-10 bg-white/10 backdrop-blur-md brightness-125 border-2 text-white">
-          <h1 className="font-semibold text-xl text-[#fafafa]">
-            Performance
+    <section className="relative flex flex-col w-3/4 justify-center gap-8 min-h-[400px] py-10">
+      <div className="flex w-full justify-center gap-x-10 max-lg:flex-col max-lg:items-center max-lg:gap-y-8">
+        <section className="px-5 flex flex-col items-center gap-y-6 pt-6 max-w-[350px] min-h-[300px] min-w-[300px] rounded-xl z-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform hover:scale-[1.02] transition-all duration-300">
+          <h1 className="font-bold text-2xl text-white/90 tracking-wide">
+            Metricas de Rendimiento
           </h1>
-          <div className="flex flex-col gap-3">
-            <p><span className="font-bold">Visitas:</span> {totalViews}</p>
-            <p><span className="font-bold">Consultas totales</span> {totalQueries}</p>
+          <div className="flex flex-col gap-5 w-full px-8">
+            <div className="flex flex-col gap-2">
+              <p className="text-white/70 text-sm uppercase tracking-wider">Visitas Totales</p>
+              <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">{totalViews.toLocaleString()}</p>
+            </div>
+            <div className="flex flex-col gap-2">
+              <p className="text-white/70 text-sm uppercase tracking-wider">Consultas totales</p>
+              <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">{totalQueries.toLocaleString()}</p>
+            </div>
           </div>
         </section>
 
-        <section className="flex flex-col items-center gap-y-5 pt-4 min-h-[300px] h-fit min-w-[260px] py-7 rounded-lg z-10 bg-white/10 backdrop-blur-md brightness-125 border-2 text-white">
-          <h1 className="font-semibold text-xl text-[#fafafa]">TOP mas consultados:</h1> 
-          <div className="flex flex-col gap-y-5">
+        <section className="px-5 flex flex-col items-center gap-y-6 pt-6 min-h-[300px] h-fit min-w-[300px] rounded-xl z-10 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform hover:scale-[1.02] transition-all duration-300">
+          <h1 className="font-bold text-2xl text-white/90 tracking-wide">Productos mas consultados</h1> 
+          <div className="flex flex-col gap-y-5 w-full px-8 pb-6">
             {topProducts.slice(0,5).map((product, index) =>(
-              <div key={product.id + index} className="flex flex-col">
-                <p className="font-bold">
-                  TOP {index + 1}: <span className="font-normal">{product.sku}</span>
-                </p>
-                <p className="font-semibold">
-                  Consultas: <span className="font-normal">{product.total_views}</span>
+              <div key={product.id + index} className="flex flex-col gap-1 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors duration-200">
+                <div className="flex items-center gap-2">
+                  <span className="text-sm font-semibold text-emerald-400">#{index + 1}</span>
+                  <p className="font-medium text-white/90">{product.sku}</p>
+                </div>
+                <p className="text-sm text-white/70">
+                  <span className="font-medium">{product.total_views.toLocaleString()}</span> vistas
                 </p>
               </div>
             ))}
@@ -154,70 +161,65 @@ export default function Home() {
       </div>
       
       <div className="flex justify-center w-full">
-        <section className="flex flex-col items-center justify-around gap-5 p-4 min-h-[460px] max-h-[400px] rounded-lg z-10 bg-white/10 backdrop-blur-md brightness-125 border-2 text-white w-full">
-          <h1 className="font-semibold text-xl text-[#fafafa] border-b-2">
-            Emails subscriptos
-          </h1>
-          <div className="flex flex-wrap gap-y-5 pl-[100px] w-full h-full max-sm:grid-cols-1">
+        <section className="flex flex-col items-center justify-around gap-5 p-6 min-h-[460px] rounded-xl z-10 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur-md border-2 border-white/20 text-white w-full shadow-lg">
+          <div className="flex items-center justify-between w-full border-b border-white/20 pb-4">
+            <h1 className="font-bold text-2xl text-white/90 tracking-wide">
+              Emails Subscritos
+            </h1>
+            <button
+              onClick={() => getAllMails(clients)}
+              className="px-4 py-2 cursor-pointer font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
+            >
+              Copiar todos
+            </button>
+          </div>
+          <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
             {displayedArticles.reverse().slice(startIndex, startIndex + 10).map(client => (
-              <span className="min-w-[300px] flex gap-1 items-center" key={client.id}>
-                <FaDotCircle/>
-                <span>{client.email}</span>
-                <FaTrashAlt onClick={()=> handleDeleteMail(client.id)} className="hover:text-red-500 duration-300 cursor-pointer"/>
-              </span>
+              <div className="flex items-center gap-3 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors duration-200" key={client.id}>
+                <FaDotCircle className="text-blue-400 text-sm"/>
+                <span className="flex-1 text-white/90">{client.email}</span>
+                <FaTrashAlt 
+                  onClick={() => handleDeleteMail(client.id)} 
+                  className="text-white/50 hover:text-red-400 transition-colors duration-300 cursor-pointer"
+                />
+              </div>
             ))}
           </div>
 
-          {/* Div Paginacion*/}
-          <div className="flex gap-x-5 mt-5 w-full justify-center items-center">
-            <div className="flex items-center">
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setCurrentPage(1)}
-                  className="px-4 py-2 cursor-pointer bg-white text-black rounded-lg shadow-md hover:scale-105 hover:bg-opacity-80 transition duration-300"
-                >
-                  <FaAngleDoubleLeft className="text-2xl" />
-                </button>
+          <div className="flex items-center justify-center gap-4 mt-4">
+            <button
+              onClick={() => setCurrentPage(1)}
+              className="p-2 cursor-pointer bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md transition-all duration-300"
+            >
+              <FaAngleDoubleLeft className="text-xl" />
+            </button>
 
-                <button
-                  onClick={() => setCurrentPage(prevPage => Math.max(prevPage - 1, 1))}
-                  disabled={currentPage === 1}
-                  className="px-4 py-2 cursor-pointer bg-white text-black rounded-lg shadow-md hover:scale-105 hover:bg-opacity-80 transition duration-300"
-                >
-                  <FaAngleLeft className="text-2xl" />
-                </button>
-              </div>
+            <button
+              onClick={() => setCurrentPage(prevPage => Math.max(prevPage - 1, 1))}
+              disabled={currentPage === 1}
+              className="p-2 cursor-pointer bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FaAngleLeft className="text-xl" />
+            </button>
 
-              {/* Mostrar currentPage / totalPages */}
-              <span className="px-4 bg-white text-black mx-1 py-[6px] rounded-lg text-xl font-semibold">{currentPage} / {totalPages}</span>
-              
-              <div className="flex gap-2">
-                <button
-                  onClick={() => setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages))}
-                  disabled={currentPage === totalPages}
-                  className="px-4 cursor-pointer py-2 bg-white text-black rounded-lg shadow-md hover:scale-105 hover:bg-opacity-80 transition duration-300"
-                >
-                  <FaAngleRight className="text-2xl" />
-                </button>
+            <span className="px-4 py-2 bg-white/10 text-white rounded-lg text-sm font-medium">
+              {currentPage} / {totalPages}
+            </span>
 
-                <button
-                  onClick={() => setCurrentPage(totalPages)}
-                  className="px-4 py-2 cursor-pointer bg-white text-black rounded-lg shadow-md hover:scale-105 hover:bg-opacity-80 transition duration-300"
-                >
-                  <FaAngleDoubleRight className="text-2xl" />
-                </button>
+            <button
+              onClick={() => setCurrentPage(prevPage => Math.min(prevPage + 1, totalPages))}
+              disabled={currentPage === totalPages}
+              className="p-2 cursor-pointer bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
+            >
+              <FaAngleRight className="text-xl" />
+            </button>
 
-                <button
-                  onClick={() => getAllMails(clients)}
-                  className="px-4 py-2 cursor-pointer font-bold bg-white text-black rounded-lg shadow-md hover:scale-105 hover:bg-opacity-80 transition duration-300"
-                >
-                  Copiar Mails
-                </button>
-              </div>
-            </div>
-
-            <div>
-            </div>
+            <button
+              onClick={() => setCurrentPage(totalPages)}
+              className="p-2 cursor-pointer bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md transition-all duration-300"
+            >
+              <FaAngleDoubleRight className="text-xl" />
+            </button>
           </div>
         </section>
       </div>

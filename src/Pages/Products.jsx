@@ -1,26 +1,28 @@
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import Spinner from '../Components/Products/Spinner.jsx';
-import Swal from 'sweetalert2';
-import withReactContent from 'sweetalert2-react-content';
 import axios from 'axios';
+import ImageSlider from '../Components/Products/ImageSlider.jsx';
+import RichEditor from '../Components/Editor/RichEditor';
 
 const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
-const MySwal = withReactContent(Swal);
 
 export default function Products() {
   const [product, setProduct] = useState(null);
   const [productImages, setProductImages] = useState([]);
-  const [selectedImg, setSelectedImg] = useState('');
   const [loading, setLoading] = useState(true);
   const [description, setDescription] = useState(null);
   const [specifications, setSpecifications] = useState(null);
-  const [price, setPrice] = useState(0);
-  const [discount, setDiscount] = useState(0);
-  const [name, setName] = useState(null);
   const [descriptionMenu, setDescriptionMenu] = useState('desc');
+  const [showEditor, setShowEditor] = useState(false);
+  const [editingField, setEditingField] = useState(null);
   const location = useLocation();
   const navigate = useNavigate();
+
+  const editField = (field) => {
+    setEditingField(field);
+    setShowEditor(true);
+  };
 
   useEffect(() => {
     setLoading(true)
@@ -32,142 +34,177 @@ export default function Products() {
       return;
     }
 
-    axios.get(`${API_URL}/api/products?all=true`)
+    axios.get(`${API_URL}/api/products?sku=${productQuery}`)
     .then(res => {
-      const data = res.data
-      const newProduct = data.find(p => p.sku === productQuery);
-      if (!newProduct) return navigate('/admin/page/error');
+      const newProduct = res.data[0]
+      if(!newProduct) throw new Error('Producto no encontrado');
 
       setProduct(newProduct);
       setProductImages(newProduct.img_urls);
-      setSelectedImg(newProduct.img_urls[0]);
       setDescription(newProduct.descriptions);
-      setName(newProduct.name);
-      setPrice(newProduct.price);
-      setDiscount(newProduct.discount);
       setSpecifications(newProduct.specifications);
 
       document.title = `${newProduct.name} | Technology Line`;
     })
-    .catch(e => console.error(e))
+    .catch(e => {
+      console.error(e)
+      return navigate('/admin/page/error')
+    })
     .finally(() => setLoading(false))
   }, [location.search, navigate]);
-  
-  const editField = (field) => {
-    const titles = { desc: 'Descripción', spec: 'Especificaciones', price: 'Precio', discount: 'Descuento', name: 'Nombre' };
-    const inputs = { desc: description, spec: specifications, price, discount, name };
-    const inputLabels = { discount: ' (Recuerde que si aplica un valor mayor a 0 al descuento, se activara modo descuento.)' };
-
-    MySwal.fire({
-      title: `Editar ${titles[field]}`,
-      inputLabel: `Ingrese nuevo valor${inputLabels[field] || ':'}`,
-      inputValue: inputs[field],
-      input: 'textarea',
-      showCancelButton: true,
-      confirmButtonText: 'Guardar',
-      cancelButtonText: 'Cancelar',
-      inputValidator: (value) => {
-        if (!value.trim()) return 'El campo no puede estar vacío';
-        if (value === inputs[field]) return 'No se detectaron cambios, intente nuevamente.';
-      }
-    })
-    .then((result) => {
-      if (result.isConfirmed) {
-        const newValue = result.value;
-        const handlers = {
-          desc: handleEditDescription,
-          spec: handleEditSpecifications,
-          price: handleEditPrice,
-          name: handleEditName,
-          discount: handleEditDiscount
-        };
-        handlers[field](product.id, newValue);
-      }
-    });
-  };
 
   const handleEditField = async (field, newValue) => {
-    if (newValue === product[field] || newValue === undefined) return alert(`Error, no se detectó cambios en ${field}.`);
     try {
-      const response = await fetch(`${API_URL}/api/products/${product.id}`, {
+      const response = await fetch(`${API_URL}/api/products?sku=${product.sku}`, {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ [field]: field === 'price' || field === 'discount' ? parseFloat(newValue) : newValue })
+        body: JSON.stringify({ [field]: newValue })
       });
       if (!response.ok) throw new Error('Error al editar producto');
-      alert('Producto editado con éxito!');
-      setProduct(prev => ({ ...prev, [field]: newValue }));
-      window.location.reload()
-    } 
-    catch (err) {
-      console.log(err);
-      alert('Error al cambiar el valor, 500 servidor error');
+      
+      if (field === 'descriptions') {
+        setDescription(newValue);
+      } else if (field === 'specifications') {
+        setSpecifications(newValue);
+      }
+      
+      alert('Contenido actualizado con éxito!');
+    } catch (err) {
+      console.error(err);
+      alert('Error al actualizar el contenido');
     }
   };
 
-  const handleEditDescription = (id, newValue) => handleEditField('descriptions', newValue);
-  const handleEditSpecifications = (id, newValue) => handleEditField('specifications', newValue);
-  const handleEditName = (id, newValue) => handleEditField('name', newValue);
-  const handleEditPrice = (id, newValue) => handleEditField('price', newValue);
-  const handleEditDiscount = (id, newValue) => handleEditField('discount', newValue);
-
   if (loading) return <Spinner />;
   
-  const formattedPrice = parseFloat(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
-  const formattedDiscount = parseFloat(discount).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 });
+  const formattedPrice = (price) => {
+    return price ? parseFloat(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-----'
+  }
 
   return (
-    <section className='flex flex-col items-center h-full w-full gap-y-10 pb-14 max-md:pt-10 z-10 bg-gradient-to-tl from-[#0d1717] to-[#f9bf89] text-white'>
-      <header className='w-[90%] sm:mt-5 relative h-full flex max-md:flex-col max-md:items-center sm:p-5 rounded-3xl py-5'>
-        <section className='flex flex-col items-center gap-y-5 relative w-[55%] max-sm:w-full h-full min-h-[300px] max-h-[500px]'>
-          <div className='h-[300px] w-[300px]'>
-            <img className='h-full w-full object-contain rounded-lg' src={selectedImg} alt="Product" />
-          </div>
-          <div className='flex justify-center w-full h-full rounded-lg max-h-[100px]'>
-            {productImages && productImages.map((img, index) => (
-              <img
-                className='h-24 w-24 cursor-pointer object-contain rounded-lg'
-                onClick={() => setSelectedImg(img)}
-                key={index}
-                src={img}
-                alt={`Thumbnail ${index + 1}`}
+    <section className='flex relative flex-col items-center h-full w-[90%] min-h-[600px] gap-y-10 pb-14 pt-5 max-md:pt-10'>
+      <header className='w-[100%] relative h-full flex max-md:flex-col max-md:items-center sm:p-5 rounded-3xl py-5 gap-5 shadow-page'>
+        <section className='relative text-white w-[60%] max-md:w-full h-full sm:mt-2 -mt-2 sm:min-h-[620px] min-h-[550px] sm:pb-10 p-5 rounded-lg'>
+          <span className='text-sm tracking-wide w-full'>
+            SKU: {product.sku}
+          </span>
+
+          <h1 className='text-2xl font-semibold'>
+            {product.name.replace(/EAN.*/,'')}
+          </h1>
+
+          {loading 
+            ? <div><Spinner /></div> 
+            : <ImageSlider 
+                loadedImages={productImages} 
+                setLoadedImages={setProductImages} 
+                id={product.id}
+                sku={product.sku}
               />
-            ))}
-          </div>
+          }
         </section>
-        <section className='flex flex-col w-[45%] justify-start max-sm:px-10 items-start h-fit max-md:w-full border-2 rounded-lg p-8 sm:mb-10 shadow-[#fafafa] shadow-lg'>
-          <div className='flex gap-3'>
-            {['name', 'price', 'discount'].map(field => (
-              <span
-                key={field}
-                onClick={() => editField(field)}
-                className='text-blue-400 hover:text-black cursor-pointer top-1 font-bold duration-300'>
-                Editar {field === 'discount' ? 'descuento' : field}
-              </span>
-            ))}
-          </div>
+
+        <section className='flex tracking-wider bg-[#fafafa] flex-col w-[40%] mt-5 min-h-[620px] max-sm:min-h-[500px] justify-center items-center h-fit max-md:w-full border rounded-lg p-8 max-sm:py-0 sm:mb-10 shadow-lg'>
           <div className='min-h-[200px] flex flex-col gap-y-2'>
-            <span className='text-sm text-[#fafafae8]'>SKU: {product.sku}</span>
-            <h1 className='text-2xl'>{name}</h1>
             <div className='flex flex-col w-full gap-y-3 justify-center'>
-              <div className='flex flex-col'>
-                <span className='text-2xl font-semibold'>Precio: ${formattedPrice}</span>
-                <span className='text-2xl font-semibold'>Descuento: {discount === 0 ? "Desactivado" : formattedDiscount}</span>
-              </div>
-              <div className='flex text-xl w-full items-center'>
-                <span>Stock: <strong>{product.stock}</strong></span>
-              </div>
-              <span>{product.ean && `EAN: ${product.ean}`}</span>
+              <section className='flex flex-col text-lg w-full gap-2 border-b pb-3 border-dashed border-page-blue-normal'>
+                <p className='flex flex-col text-center text-[#333333] tracking-widest mb-2 text-2xl'>
+                  <span>
+                    PRECIO LISTA
+                  </span>
+                  <span>
+                    <b className='font-semibold text-[#333333]'>{`$${formattedPrice(product.price_list_1)}`}</b>
+                  </span>
+                </p>
+
+                <div className='flex font-semibold text-red-600 flex-col text-center items-center text-base tracking-tighter'>
+                  <span>PROMO: EFECTIVO / TRANSFERENCIA BANCARIA: </span>
+                  <p className='pl-5 font-semibold flex gap-1 text-[#15803d] items-center tracking-normal'>
+                    <span>{`$${formattedPrice(product.price_list_2)}`}</span>
+                    <span className='text-xs text-[#dc7b26]'>(Ahorras: ${product.price_list_1 ? ((product.price_list_2 - product.price_list_1)*-1).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-----'})</span>
+                  </p>
+                </div>
+              </section>
+              
+              <section className='flex flex-col items-center mb-5 w-full gap-y-3 justify-center'>
+                <span className='font-bold text-[#2563eb]'>¡Opcion de compra en cuotas fijas!</span>
+
+                <article className='flex flex-col'>
+                  <p className='flex w-fit justify-center gap-1 p-1'>
+                    <span className='text-[#1e40af] font-semibold'>3</span> 
+                    <span className='text-[#1e40af]'>cuotas</span>
+                    <span>de:</span> 
+                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_3)/3).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-----'}`}</span>
+                  </p>
+                </article>  
+
+                <article className='flex flex-col'>
+                  <p className='flex w-fit justify-center gap-1 p-1'>
+                    <span className='text-[#1e40af] font-semibold'>6</span> 
+                    <span className='text-[#1e40af]'>cuotas</span>
+                    <span>de:</span> 
+                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_4)/6).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-----'}`}</span>
+                  </p>
+                </article>  
+
+                <article className='flex flex-col'>
+                  <p className='flex w-fit justify-center gap-1 p-1'>
+                    <span className='text-[#1e40af] font-semibold'>9</span> 
+                    <span className='text-[#1e40af]'>cuotas</span>
+                    <span>de:</span> 
+                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_5)/9).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-----'}`}</span>
+                  </p>
+                </article>  
+
+                <article className='flex flex-col'>
+                  <p className='flex w-fit justify-center gap-1 p-1'>
+                    <span className='text-[#1e40af] font-semibold'>12</span> 
+                    <span className='text-[#1e40af]'>cuotas</span>
+                    <span>de:</span> 
+                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_6)/12).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-----'}`}</span>
+                  </p>
+
+                </article>  
+
+                <ul className="flex text-3xl max-[1500px]:ml-0 gap-x-4">
+                  <img className='bg-gray-700 rounded-lg w-[45px] h-[30px]' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon2.svg'/>
+                  <img className='bg-red-600 rounded-lg w-[45px] h-[30px]' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon3.svg'/>
+                  <img className='bg-blue-500 rounded-lg w-[45px] h-[30px]' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon4.svg'/>
+                  <img className='bg-yellow-500 rounded-lg w-[45px] h-[30px]' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon5.svg'/>
+                  <img className='bg-orange-500 rounded-lg w-[45px] h-[30px]' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon1.svg'/>
+                </ul>
+              </section>
             </div>
           </div>
-          <div className='w-full flex max-md:justify-center items-center'>
-            <span className='btn'>
-              Consultar Articulo
+
+          <div className='w-full flex max-md:justify-center flex-col gap-5 items-center'>
+            <span className='text-sm uppercase tracking-widest font-semibold text-gray-700'>
+              DISPONIBILIDAD: {product.stock}
             </span>
+            <button
+              onClick={()=> addProductToCart({ product })}
+              className='max-sm:hidden bg-page-blue-normal active:text-sm active:duration-0 hover:bg-page-lightblue rounded-xl flex items-center justify-center text-sm font-bold bg-gradient-to-l from-sky-400 to-sky-800 duration-300 border border-gray-300 text-white py-1 px-2 w-[90%] h-[50px] cart hover:brightness-125'
+            >
+              AGREGAR AL CARRITO
+            </button>
           </div>
         </section>
       </header>
-      <div className='flex flex-col max-sm:w-[90%] w-[83%] bg-blue-400 rounded-lg border shadow-[#fafafa] shadow-lg'>
+
+      {showEditor && (
+        <RichEditor
+          initialValue={editingField === 'desc' ? description : specifications}
+          title={editingField === 'desc' ? 'Descripción' : 'Especificaciones'}
+          onSave={(content) => {
+            const field = editingField === 'desc' ? 'descriptions' : 'specifications';
+            handleEditField(field, content);
+            setShowEditor(false);
+          }}
+          onClose={() => setShowEditor(false)}
+        />
+      )}
+      
+      <div className='flex flex-col max-sm:w-[90%] w-[83%] bg-blue-400 rounded-lg border shadow-lg'>
         <div className='flex p-2 gap-x-3'>
           <span
             onClick={() => setDescriptionMenu('desc')}
@@ -181,6 +218,7 @@ export default function Products() {
             Especificaciones
           </span>
         </div>
+
         <div className='relative p-2 bg-gray-100 min-h-[100px]'>
           {descriptionMenu === 'desc'
             ? (

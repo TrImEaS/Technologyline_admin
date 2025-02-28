@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { useState, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useProducts } from '../Context/ProductsContext';
@@ -9,7 +10,7 @@ export default function ArticleEditor() {
   const [keyword, setKeyword] = useState('');
   const [filter, setFilter] = useState(false);
   const [productsPerPage, setProductsPerPage] = useState(10);
-  const maxPageButtons = 5;
+  const maxPageButtons = 3;
   const location = useLocation();
   const navigate = useNavigate(); 
 
@@ -109,9 +110,28 @@ export default function ArticleEditor() {
   
   const displayedProducts = getFilteredProducts().slice(startIndex, startIndex + productsPerPage);
 
+  const exportToExcel = () => {
+    const data = displayedProducts.map(p => ({
+      'SKU': p.sku,
+      'Nombre': p.name,
+      'Precio lista': p.price_list_1,
+      'Stock': p.stock,
+      'categoría': p.category,
+      'Sub-categoría': p.sub_category,
+      'Marca': p.brand,
+      'Imagen': p.img_base
+    }))
+
+    const date = new Date().getDate() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getFullYear();
+    const ws = XLSX.utils.json_to_sheet(data);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, `lista_productos_${date}.xlsx`);
+  }
+
   return (
     <section className="flex flex-col justify-center items-center h-full min-h-[500px] w-[80%] z-10 py-5">
-      <article className="flex w-full flex-col gap-10 items-center">
+      <article className="flex w-full flex-col gap-10 relative items-center">
         <div className='flex gap-5 justify-center items-center'>
           <div className='flex border bg-gray-100 rounded-full flex-col w-[500px] text-black gap-2 justify-center items-center px-2 z-[9999]'>
             <div className='flex w-full gap-2 mr-2 justify-center items-center px-2 bg-gray-100 rounded-full'>
@@ -127,32 +147,23 @@ export default function ArticleEditor() {
 
           <div className='flex gap-x-2 items-center justify-center'>
             <span 
-              className={`${!filter ? 'text-black' : 'text-gray-300 border-gray-50'} font-bold bg-[#fafafa] rounded-lg flex items-center text-sm justify-center w-full h-14 cursor-pointer hover:outline-dashed hover:text-black hover:border-black duration-100 border-2 border-black`}
+              className={`${!filter ? 'text-gray-500 bg-opacity-60 border-transparent' : 'text-opacity-100 border-white shadow-white shadow-sm text-white bg-opacity-0'} hover:bg-opacity-100 font-bold bg-white tracking-tighter text-center rounded-lg flex items-center text-sm justify-center h-9 px-2 cursor-pointer duration-300 border-2 border-black`}
               onClick={() => 
               {
-                setFilter(false);
+                setFilter(!filter);
                 setStartIndex(0);
                 navigate(`?page=1&onlystock=false`);
               }}>
-              Todo
-            </span>
-
-            <span>|</span>
-
-            <span 
-              className={`${filter ? 'text-black' : 'text-gray-300 border-gray-50'} font-bold bg-[#fafafa] rounded-lg flex items-center text-sm justify-center w-full h-14 cursor-pointer hover:outline-dashed hover:text-black hover:border-black duration-100 border-2 border-black`}
-              onClick={() => 
-              {
-                setFilter(true);
-                setStartIndex(0);
-                navigate(`?page=1&onlystock=true`);
-              }}>
               Solo con stock
             </span>
+
+            <button onClick={exportToExcel} className='btn absolute right-0 top-0'>
+              Exportar a excel
+            </button>
           </div>
         </div>
 
-        <div className="flex flex-wrap justify-center gap-1 w-full min-h-[400px]">
+        <div className="flex flex-wrap justify-center gap-2 w-full min-h-[400px]">
           {displayedProducts.map(product => (
             <ProductCard 
               key={product.id + product.name} 
@@ -162,20 +173,35 @@ export default function ArticleEditor() {
           ))}
         </div>
 
-        <div className="flex w-full justify-center items-center mt-10">
-          {getPagesToShow().map((page, index) => (
-            <span
-              key={page === '...' ? `ellipsis-${index}` : page} // Clave única para los puntos suspensivos
-              onClick={() => {
-                if (page !== '...') handlePageChange(page);
-              }}
-              className={`cursor-pointer mx-2 p-2 ${
-                typeof page === 'number' && (Math.floor(startIndex / productsPerPage) + 1) === page ? 'bg-gray-500 text-white' : 'bg-gray-200'
-              }`}
-            >
-              {page}
-            </span>
-          ))}
+        <div className="flex w-full justify-between items-center">
+          <div className='flex justify-center gap-2 pl-[20%] items-center flex-1'>
+            {getPagesToShow().map((page, index) => (
+              <span
+                key={page === '...' ? `ellipsis-${index}` : page} // Clave única para los puntos suspensivos
+                className={`cursor-pointer p-2 w-9 h-9 text-center flex justify-center items-center border rounded-lg
+                  ${typeof page === 'number' && (Math.floor(startIndex / productsPerPage) + 1) === page ? 'bg-white text-black' : 'text-white' }`}
+                onClick={() => {
+                  if (page !== '...') handlePageChange(page);
+                }}
+              >
+                {page}
+              </span>
+            ))}
+          </div>
+
+
+          <div className='flex flex-0 gap-2 justify-center items-center'>
+            {[10, 25, 50, 100, 500].map((value) => (
+              <span
+                key={value}
+                className={`cursor-pointer p-2 w-9 h-9 text-center flex justify-center items-center border rounded-lg
+                  ${productsPerPage === value ? 'bg-white text-black' : 'text-white' }`}
+                onClick={() => setProductsPerPage(value)}
+              >
+                {value}
+              </span>
+            ))}
+          </div>
         </div>
       </article>
     </section>

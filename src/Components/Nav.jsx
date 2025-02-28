@@ -238,6 +238,10 @@ export default function Nav({ user }) {
           className='btn'>
           Actualizar stock
         </button> */}
+        
+        <span className='text-xl'>
+          Bienvenido <span className="text-white font-bold">{user.slice(0, 1).toUpperCase() + user.slice(1)}</span>
+        </span>
 
         <button 
           onClick={handleUpdateData}
@@ -245,13 +249,9 @@ export default function Nav({ user }) {
           Actualizar pagina
         </button>
 
-        <span className='text-xl'>
-          Bienvenido <span className="text-white font-bold">{user.slice(0, 1).toUpperCase() + user.slice(1)}</span>
-        </span>
-
         <NavLink to='/admin/page/queries' title="Tiene consultas sin leer, click para ver" className="flex drop-shadow-xl flex-col relative cursor-pointer hover:scale-105 duration-500">
           <span data-text="2" className="absolute text-outline z-10 text-white font-bold text-2xl left-[-10px] top-[-10px]">{views.length}</span>
-          <FaEnvelopeOpenText className="text-5xl text-white"/>
+          <FaEnvelopeOpenText className="text-3xl text-white"/>
         </NavLink>
       </article>
     </section>
