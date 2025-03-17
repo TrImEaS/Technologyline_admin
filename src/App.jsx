@@ -18,7 +18,7 @@ export default function App() {
     login === false 
     ? <Login loginSetter={setLogin} userSetter={setUser}/> 
     : (
-      <main className='relative flex flex-col items-center bg-gradient-to-br from-[#111] to-[#222] min-h-screen h-full font-consolas'>
+      <main className='relative flex flex-col items-center bg-gradient-to-br from-[#232c3d] to-[#10443e] min-h-screen h-full font-consolas'>
         <ProductsProvider>
           <ScrollToTopOnLocationChange />
           <Nav user={user}/>

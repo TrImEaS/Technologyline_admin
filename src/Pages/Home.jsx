@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
 import Swal from "sweetalert2"
-import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaDotCircle, FaTrashAlt } from "react-icons/fa"
+import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaCrown, FaDotCircle, FaTrashAlt } from "react-icons/fa"
 import axios from "axios"
 
 const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
@@ -20,9 +20,9 @@ export default function Home() {
     fetch(`${API_URL}/api/products?all=true`)
     .then(response => response.json())
     .then(data => {
-      const products = data.filter(product => product.total_views > 0)
-      const totalQueries = data.map(product => product.total_views)
-      products.sort((a,b) => b.total_views - a.total_views)
+      const products = data.filter(product => product.week_views > 0)
+      const totalQueries = data.map(product => product.week_views)
+      products.sort((a,b) => b.week_views - a.week_views)
       setTopProducts(products)
       setTotalQueries(totalQueries.reduce((total, actual) => total + actual, 0))
     })
@@ -58,7 +58,7 @@ export default function Home() {
     
     const interval = setInterval(() => {
       getData()
-    }, 5 * 60 * 1000) // Min * sec * ms
+    }, 5 * 60 * 1000) 
 
     return () => clearInterval(interval);
   },[])
@@ -126,7 +126,7 @@ export default function Home() {
     :
     <section className="relative flex flex-col w-3/4 justify-center gap-8 min-h-[400px] py-10">
       <div className="flex w-full justify-center gap-x-10 max-lg:flex-col max-lg:items-center max-lg:gap-y-8">
-        <section className="px-5 flex flex-col items-center gap-y-6 pt-6 max-w-[350px] min-h-[300px] min-w-[300px] rounded-xl z-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform hover:scale-[1.02] transition-all duration-300">
+        <section className="px-5 flex flex-col items-center gap-y-6 pt-6 max-w-[350px] min-h-[300px] min-w-[300px] rounded-xl z-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform transition-all duration-300">
           <h1 className="font-bold text-2xl text-white/90 tracking-wide">
             Metricas de Rendimiento
           </h1>
@@ -142,17 +142,18 @@ export default function Home() {
           </div>
         </section>
 
-        <section className="px-5 flex flex-col items-center gap-y-6 pt-6 min-h-[300px] h-fit min-w-[300px] rounded-xl z-10 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform hover:scale-[1.02] transition-all duration-300">
-          <h1 className="font-bold text-2xl text-white/90 tracking-wide">Productos mas consultados</h1> 
-          <div className="flex flex-col gap-y-5 w-full px-8 pb-6">
+        <section className="px-5 flex flex-col items-center gap-y-6 pt-6 min-h-[300px] h-fit min-w-[300px] rounded-xl z-10 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform transition-all duration-300">
+          <h1 className="font-bold text-2xl text-white/90 tracking-wide">Los Mas Buscados Semanal</h1> 
+          <div className="flex flex-wrap gap-2 w-[400px] justify-center items-center px-8 pb-6">
             {topProducts.slice(0,5).map((product, index) =>(
-              <div key={product.id + index} className="flex flex-col gap-1 p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors duration-200">
-                <div className="flex items-center gap-2">
+              <div key={product.id + index} className={`${index === 0 ? 'w-full pt-7' : 'w-[48.8%]'} flex flex-col p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors duration-200`}>
+                <div className="flex relative items-center gap-2 justify-center">
                   <span className="text-sm font-semibold text-emerald-400">#{index + 1}</span>
                   <p className="font-medium text-white/90">{product.sku}</p>
+                  {index === 0 && <FaCrown className="-top-5 text-green-500 text-xl absolute"/>}
                 </div>
-                <p className="text-sm text-white/70">
-                  <span className="font-medium">{product.total_views.toLocaleString()}</span> vistas
+                <p className="text-sm text-white/70 text-center">
+                  <span className="font-medium">{product.week_views.toLocaleString()}</span> vistas
                 </p>
               </div>
             ))}
