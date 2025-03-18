@@ -51,7 +51,7 @@ export default function ArticleEditor() {
       return filteredProducts;
     }
 
-    console.log(filteredProducts)
+    // console.log(filteredProducts)
     return filteredProducts.filter(product => product.stock > 0 && !product.name.includes('prueba'));
   };
 
