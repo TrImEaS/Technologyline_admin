@@ -50,7 +50,7 @@ export default function ProductCard({ product, loading }) {
   };
 
   return (
-    <section className="flex box-border items-center border-2 shadow-page-hover justify-center bg-white duration-300 text-gray-600 rounded-lg px-1 py-4 w-full h-[80px]">
+    <section className="flex box-border items-center border-2 shadow-page-hover justify-center bg-white duration-300 text-gray-600 rounded-lg px-1 py-4 w-full h-[70px]">
       <article className="flex w-full h-full border-r border-gray-400 px-1">
         <header className="relative image-container w-[200px] h-full border-r border-gray-400 box-border">
           {loading && (
@@ -60,7 +60,7 @@ export default function ProductCard({ product, loading }) {
           )}
 
           <img
-            src={product.img_base}
+            src={product.img_url ? product.img_url : 'https://technologyline.com.ar/banners-images/Assets/page-icon.jpeg'}
             alt={product.name}
             className={`w-full h-full object-contain scale-150 rounded-lg`}
             onError={(e) => e.target.src = 'https://technologyline.com.ar/banners-images/Assets/page-icon.jpeg'}

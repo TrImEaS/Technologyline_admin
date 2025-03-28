@@ -11,44 +11,35 @@ export default function Home() {
   const [loading, setLoading] = useState(true)
   const [clients, setClients] = useState([])
   const [totalViews, setTotalViews] = useState(0)
+  const [weekQueries, setWeekQueries] = useState(0)
   const [totalQueries, setTotalQueries] = useState(0)
-  const [startIndex, setStartIndex] = useState(0)
+  const startIndex = 0
   const [currentPage, setCurrentPage] = useState(1);
-  const [itemsPerPage, setItemsPerPage] = useState(13);
+  const itemsPerPage = 13
 
   const getData = () => {
     fetch(`${API_URL}/api/products?all=true`)
-    .then(response => response.json())
-    .then(data => {
-      const products = data.filter(product => product.week_views > 0)
-      const totalQueries = data.map(product => product.week_views)
-      products.sort((a,b) => b.week_views - a.week_views)
-      setTopProducts(products)
-      setTotalQueries(totalQueries.reduce((total, actual) => total + actual, 0))
-    })
-    .catch(e =>{
-      console.error('Error loading products: ', e)
-    })
+      .then(response => response.json())
+      .then(data => {
+        const products = data.filter(p => p.week_views > 0).sort((a,b) => b.week_views - a.week_views).slice(0,5)
+        const totalQueries = data.map(p => p.total_views).reduce((total, actual) => total + actual, 0)
+        const weekQueries = data.map(p => p.week_views).reduce((total, actual) => total + actual, 0)
 
-    // fetch(`${API_URL}/api/clients`)
+        setTopProducts(products)
+        setWeekQueries(weekQueries)
+        setTotalQueries(totalQueries)
+      })
+      .catch(e => console.error('Error loading products: ', e))
+
     fetch(`${API_URL}/api/clients`)
-    .then(response => response.json())
-    .then(data => {
-      setClients(data)
-    })
-    .catch(e =>{
-      console.error('Error loading client data: ', e)
-    })
+      .then(response => response.json())
+      .then(data => setClients(data))
+      .catch(e => console.error('Error loading client data: ', e))
 
-    // fetch(`${API_URL}/api/clients/getViews`)
     fetch(`${API_URL}/api/clients/getViews`)
     .then(response => response.json())
-    .then(data => {
-      setTotalViews(data.views)
-    })
-    .catch(e =>{
-      console.error('Error loading page views: ', e)
-    })
+      .then(data => setTotalViews(data.views))
+      .catch(e => console.error('Error loading page views: ', e))
 
     setLoading(false)
   } 
@@ -86,7 +77,7 @@ export default function Home() {
   }
 
   const handleDeleteMail = (id) => {
-    axios.delete(`${API_URL}/api/clients/deleteClient?id=${parseInt(id)}`)
+    axios.delete(`${API_URL}/api/clients/deleteSubscriptor?id=${parseInt(id)}`)
       .then(res => {
         if (res.status >= 200 && res.status < 300) {
           Swal.fire({
@@ -119,34 +110,55 @@ export default function Home() {
   const totalPages = Math.ceil(clients.length / itemsPerPage);
   const displayedArticles = clients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+  if(loading)
+    return <div className="text-2xl">Loading...</div>
+
   return (
-    loading 
-    ? 
-    <div className="text-2xl">Loading...</div>
-    :
-    <section className="relative flex flex-col w-3/4 justify-center gap-8 min-h-[400px] py-10">
-      <div className="flex w-full justify-center gap-x-10 max-lg:flex-col max-lg:items-center max-lg:gap-y-8">
-        <section className="px-5 flex flex-col items-center gap-y-6 pt-6 max-w-[350px] min-h-[300px] min-w-[300px] rounded-xl z-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform transition-all duration-300">
-          <h1 className="font-bold text-2xl text-white/90 tracking-wide">
+    <section className="relative flex flex-col w-3/4 justify-center gap-5 min-h-[400px] py-10">
+      <div className="flex w-full justify-center gap-5 max-lg:flex-col max-lg:items-center">
+        <section className="px-5 flex flex-col items-center gap-y-6 py-6 min-h-[300px] min-w-[300px] w-full rounded-xl z-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform transition-all duration-300">
+          <h1 className="font-bold text-2xl text-white/90 max-sm:text-xl tracking-wide">
             Metricas de Rendimiento
           </h1>
-          <div className="flex flex-col gap-5 w-full px-8">
-            <div className="flex flex-col gap-2">
-              <p className="text-white/70 text-sm uppercase tracking-wider">Visitas Totales</p>
-              <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">{totalViews.toLocaleString()}</p>
+
+          <article className="w-full px-8 max-md:p-0 flex flex-col">
+            <div className="grid grid-cols-2 gap-8 max-w-[75%] mx-auto max-md:grid-cols-1">
+              <section className="flex flex-col gap-2">
+                <p className="text-white/70 text-sm uppercase tracking-wider">Visitas Totales</p>
+                <p className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                  {totalViews.toLocaleString()}
+                </p>
+              </section>
+
+              <section className="flex flex-col gap-2">
+                <p className="text-white/70 text-sm uppercase tracking-wider">Consultas totales</p>
+                <p className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                  {totalQueries.toLocaleString()}
+                </p>
+              </section>
+
+              {/* <section className="flex flex-col gap-2">
+                <p className="text-white/70 text-sm uppercase tracking-wider whitespace-nowrap">Visitas Semanales</p>
+                <p className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                  {weekViews.toLocaleString()}
+                </p>
+              </section> */}
+
+              <section className="flex flex-col gap-2">
+                <p className="text-white/70 text-sm uppercase tracking-wider whitespace-nowrap">Consultas Semanales</p>
+                <p className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
+                  {weekQueries.toLocaleString()}
+                </p>
+              </section>
             </div>
-            <div className="flex flex-col gap-2">
-              <p className="text-white/70 text-sm uppercase tracking-wider">Consultas totales</p>
-              <p className="text-3xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">{totalQueries.toLocaleString()}</p>
-            </div>
-          </div>
+          </article>
         </section>
 
-        <section className="px-5 flex flex-col items-center gap-y-6 pt-6 min-h-[300px] h-fit min-w-[300px] rounded-xl z-10 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform transition-all duration-300">
+        <section className="px-5 flex flex-col items-center gap-y-6 pt-6 min-h-[300px] h-fit min-w-[300px] w-full rounded-xl z-10 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform transition-all duration-300">
           <h1 className="font-bold text-2xl text-white/90 tracking-wide">Los Mas Buscados Semanal</h1> 
-          <div className="flex flex-wrap gap-2 w-[400px] justify-center items-center px-8 pb-6">
+          <div className="flex flex-wrap gap-2 max-sm:w-full w-[400px] justify-center items-center max-sm:px-2 px-8 pb-6">
             {topProducts.slice(0,5).map((product, index) =>(
-              <div key={product.id + index} className={`${index === 0 ? 'w-full pt-7' : 'w-[48.8%]'} flex flex-col p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors duration-200`}>
+              <div key={product.id + index} className={`${index === 0 ? 'w-full pt-7' : 'w-[48.8%] max-sm:w-[80%]'} flex flex-col p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors duration-200`}>
                 <div className="flex relative items-center gap-2 justify-center">
                   <span className="text-sm font-semibold text-emerald-400">#{index + 1}</span>
                   <p className="font-medium text-white/90">{product.sku}</p>
@@ -163,13 +175,13 @@ export default function Home() {
       
       <div className="flex justify-center w-full">
         <section className="flex flex-col items-center justify-around gap-5 p-6 min-h-[460px] rounded-xl z-10 bg-gradient-to-br from-indigo-500/20 to-purple-500/20 backdrop-blur-md border-2 border-white/20 text-white w-full shadow-lg">
-          <div className="flex items-center justify-between w-full border-b border-white/20 pb-4">
-            <h1 className="font-bold text-2xl text-white/90 tracking-wide">
+          <div className="flex items-center justify-between w-full border-b border-white/20 pb-4 max-sm:flex-col max-sm:gap-5">
+            <h1 className="font-bold text-2xl max-sm:text-xl text-white/90 tracking-wide">
               Emails Subscritos
             </h1>
             <button
               onClick={() => getAllMails(clients)}
-              className="px-4 py-2 cursor-pointer font-medium bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
+              className="px-4 py-2 cursor-pointer font-medium max-sm:text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
             >
               Copiar todos
             </button>
@@ -187,7 +199,7 @@ export default function Home() {
             ))}
           </div>
 
-          <div className="flex items-center justify-center gap-4 mt-4">
+          <div className="flex items-center justify-center gap-4 max-sm:gap-1 mt-4">
             <button
               onClick={() => setCurrentPage(1)}
               className="p-2 cursor-pointer bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md transition-all duration-300"

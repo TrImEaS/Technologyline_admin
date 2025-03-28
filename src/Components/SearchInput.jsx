@@ -63,7 +63,7 @@ function SearchResults({ keyword }) {
   useEffect(() => {
     (async function () {
       try {
-        const response = await fetch(`${API_URL}`/api/products`);
+        const response = await fetch(`${API_URL}/api/products`);
         if (!response.ok) {
           throw new Error('Error al obtener productos');
         }
@@ -110,7 +110,7 @@ function SearchResults({ keyword }) {
           className="flex box-border items-center justify-between bg-white p-1 hover:border-[#333] duration-500 border-2 rounded-xl hover:cursor-pointer z-[99999] w-full min-h-[150px] max-h-[150px] drop-shadow-lg">
           <header className="w-[50%] h-full box-border">
             <img 
-              src={product.img_base} 
+              src={product.img_url} 
               loading="eager"
               alt={product.name}
               onError={(e) => e.target.src = 'page-icon.jpeg'}

@@ -119,7 +119,7 @@ export default function ArticleEditor() {
       'categoría': p.category,
       'Sub-categoría': p.sub_category,
       'Marca': p.brand,
-      'Imagen': p.img_base
+      'Imagen': p.img_url
     }))
 
     const date = new Date().getDate() + '-' + (new Date().getMonth() + 1) + '-' + new Date().getFullYear();
@@ -131,7 +131,7 @@ export default function ArticleEditor() {
 
   return (
     <section className="flex flex-col justify-center items-center h-full min-h-[500px] w-[80%] z-10 py-5">
-      <article className="flex w-full flex-col gap-10 relative items-center">
+      <article className="flex w-full flex-col gap-5 relative items-center">
         <div className='flex gap-5 justify-center items-center'>
           <div className='flex border bg-gray-100 rounded-full flex-col w-[500px] text-black gap-2 justify-center items-center px-2 z-[9999]'>
             <div className='flex w-full gap-2 mr-2 justify-center items-center px-2 bg-gray-100 rounded-full'>
@@ -152,7 +152,7 @@ export default function ArticleEditor() {
               {
                 setFilter(!filter);
                 setStartIndex(0);
-                navigate(`?page=1&onlystock=false`);
+                navigate(`?page=1&onlystock=${!filter}`);
               }}>
               Solo con stock
             </span>
