@@ -88,10 +88,14 @@ function SearchResults({ keyword }) {
   const maxNameLength = 50
   const formattedPrice = (price) => parseFloat(price).toLocaleString(undefined)
 
-  const filteredProducts = products.filter((product) =>
-    product.name.toLowerCase().includes(keyword.toLowerCase()) ||
-    product.sub_category.toLowerCase().includes(keyword.toLowerCase())
-  )
+  const filteredProducts = products.filter((product) => {
+    const name = product.name.toLowerCase();
+    const subCategory = product.sub_category.toLowerCase();
+    const queryWords = keyword.toLowerCase().split(" ");
+  
+    return queryWords.every(word => name.includes(word) || subCategory.includes(word));
+  });
+  
   return (
     <section className={`flex flex-col absolute top-10 gap-2 w-full max-h-[500px] bg-white border-2 rounded-lg z-[9999] overflow-y-auto p-3 ${filteredProducts.length === 0 ? 'h-14' : 'h-[500px]'}`}>
     {filteredProducts.length === 0 
