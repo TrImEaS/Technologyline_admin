@@ -10,6 +10,7 @@ const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API
 export default function Products() {
   const [product, setProduct] = useState(null);
   const [productImages, setProductImages] = useState([]);
+  const [aditionalData, setAditionalData] = useState({ peso: "", volume: "" });
   const [loading, setLoading] = useState(true);
   const [description, setDescription] = useState(null);
   const [specifications, setSpecifications] = useState(null);
@@ -52,6 +53,14 @@ export default function Products() {
     })
     .finally(() => setLoading(false))
   }, [location.search, navigate]);
+
+  const handleInputChange = (e) => {
+    const { name, value } = e.target;
+    if (/^\d*\.?\d*$/.test(value)) {
+      setAditionalData((prev) => ({ ...prev, [name]: value }));
+    }
+  };
+  
 
   const handleEditField = async (field, newValue) => {
     try {
@@ -203,8 +212,35 @@ export default function Products() {
           onClose={() => setShowEditor(false)}
         />
       )}
+
+      <section className='flex shadow-page rounded-md p-5 flex-col min-h-[100px] text-white w-full justify-center gap-5'>
+        <h3>Datos adicionales: </h3>
+        
+        <article className='flex gap-2'>
+          <label htmlFor="peso" className='min-w-[70px]'>Peso: </label>
+          <input
+            className='rounded-sm outline-none px-2 max-w-[100px] text-black' 
+            type="text" 
+            name="peso" 
+            id="peso"
+            value={aditionalData.peso} 
+            onChange={handleInputChange} 
+          />
+        </article>
+
+        <article className='flex gap-2'>
+          <label htmlFor="volume" className='min-w-[70px]'>Volumen: </label>
+          <input 
+            value={aditionalData.volume} 
+            onChange={handleInputChange}           
+            className='rounded-sm outline-none px-2 max-w-[100px] text-black' 
+            type="text"
+            name="volume" 
+            id="volume" />
+        </article>
+      </section>
       
-      <div className='flex flex-col max-sm:w-[90%] w-[83%] bg-blue-400 rounded-lg border shadow-lg'>
+      <div className='flex flex-col w-full bg-blue-400 rounded-lg border shadow-lg'>
         <div className='flex p-2 gap-x-3'>
           <span
             onClick={() => setDescriptionMenu('desc')}
