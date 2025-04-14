@@ -21,7 +21,7 @@ export default function Home() {
     fetch(`${API_URL}/api/products?all=true`)
       .then(response => response.json())
       .then(data => {
-        const products = data.filter(p => p.week_views > 0).sort((a,b) => b.week_views - a.week_views).slice(0,5)
+        const products = data.filter(p => p.week_views > 0).sort((a,b) => b.week_views - a.week_views).slice(0,10)
         const totalQueries = data.map(p => p.total_views).reduce((total, actual) => total + actual, 0)
         const weekQueries = data.map(p => p.week_views).reduce((total, actual) => total + actual, 0)
 
@@ -116,13 +116,13 @@ export default function Home() {
   return (
     <section className="relative flex flex-col w-3/4 justify-center gap-5 min-h-[400px] py-10">
       <div className="flex w-full justify-center gap-5 max-lg:flex-col max-lg:items-center">
-        <section className="px-5 flex flex-col items-center gap-y-6 py-6 min-h-[300px] min-w-[300px] w-full rounded-xl z-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform transition-all duration-300">
-          <h1 className="font-bold text-2xl text-white/90 max-sm:text-xl tracking-wide">
+        <section className="px-5 flex flex-col items-center gap-y-6 py-6 min-h-[300px] min-w-[300px] w-[500px] max-lg:w-full rounded-xl z-10 bg-gradient-to-br from-blue-500/20 to-purple-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform transition-all duration-300">
+          <h1 className="font-bold text-2xl text-white/90 max-sm:text-xl tracking-wide text-center">
             Metricas de Rendimiento
           </h1>
 
           <article className="w-full px-8 max-md:p-0 flex flex-col">
-            <div className="grid grid-cols-2 gap-8 max-w-[75%] mx-auto max-md:grid-cols-1">
+            <div className="grid grid-cols-2 gap-8 max-w-[100%] mx-auto max-md:grid-cols-1">
               <section className="flex flex-col gap-2">
                 <p className="text-white/70 text-sm uppercase tracking-wider">Visitas Totales</p>
                 <p className="text-2xl font-bold bg-clip-text text-transparent bg-gradient-to-r from-blue-400 to-purple-400">
@@ -156,9 +156,9 @@ export default function Home() {
 
         <section className="px-5 flex flex-col items-center gap-y-6 pt-6 min-h-[300px] h-fit min-w-[300px] w-full rounded-xl z-10 bg-gradient-to-br from-emerald-500/20 to-blue-500/20 backdrop-blur-md border-2 border-white/20 text-white shadow-lg transform transition-all duration-300">
           <h1 className="font-bold text-2xl text-white/90 tracking-wide">Los Mas Buscados Semanal</h1> 
-          <div className="flex flex-wrap gap-2 max-sm:w-full w-[400px] justify-center items-center max-sm:px-2 px-8 pb-6">
-            {topProducts.slice(0,5).map((product, index) =>(
-              <div key={product.id + index} className={`${index === 0 ? 'w-full pt-7' : 'w-[48.8%] max-sm:w-[80%]'} flex flex-col p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors duration-200`}>
+          <div className="flex flex-wrap gap-2 max-sm:w-full w-full justify-center items-center max-sm:px-2 px-8 pb-6">
+            {topProducts.map((product, index) =>(
+              <div key={product.id + index} className={`${index === 0 ? 'w-full pt-7' : 'w-[32.3%] max-sm:w-[80%]'} flex flex-col p-3 rounded-lg bg-white/5 hover:bg-white/10 transition-colors duration-200`}>
                 <div className="flex relative items-center gap-2 justify-center">
                   <span className="text-sm font-semibold text-emerald-400">#{index + 1}</span>
                   <p className="font-medium text-white/90">{product.sku}</p>
