@@ -117,6 +117,7 @@ export default function ImageSlider({ loadedImages, setLoadedImages, id, sku }) 
       }
       return newImgs;
     });
+    setHasChanges(true);
   }
 
   const handleSaveChanges = async () => {
@@ -147,7 +148,7 @@ export default function ImageSlider({ loadedImages, setLoadedImages, id, sku }) 
       // Then update the product's images in the database
       const imageUrls = localImages.map(img => img.remoteUrl).filter(Boolean);
       await axios.patch(`${API_URL}/api/products/updateImages`, {
-        productId: id,
+        sku: sku,
         images: imageUrls
       });
     setLoadedImages(imageUrls);

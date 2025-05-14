@@ -60,7 +60,7 @@ export default function ProductCard({ product, loading }) {
           )}
 
           <img
-            src={product.img_url ? product.img_url : 'https://technologyline.com.ar/banners-images/Assets/page-icon.jpeg'}
+            src={product.img_urls.length > 0 ? product.img_urls[0] : 'https://technologyline.com.ar/banners-images/Assets/page-icon.jpeg'}
             alt={product.name}
             className={`w-full h-full object-contain scale-150 rounded-lg`}
             onError={(e) => e.target.src = 'https://technologyline.com.ar/banners-images/Assets/page-icon.jpeg'}

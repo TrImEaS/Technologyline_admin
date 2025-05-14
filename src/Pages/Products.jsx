@@ -60,7 +60,6 @@ export default function Products() {
       setAditionalData((prev) => ({ ...prev, [name]: value }));
     }
   };
-  
 
   const handleEditField = async (field, newValue) => {
     try {
