@@ -8,6 +8,7 @@ import Products from './Pages/Products.jsx'
 import Error from './Pages/Error.jsx'
 import Queries from './Pages/Queries.jsx'
 import Banners from './Pages/Banners.jsx'
+import Orders from './Pages/Orders.jsx'
 import { ProductsProvider } from './Context/ProductsContext.jsx'
 
 export default function App() {
@@ -28,6 +29,7 @@ export default function App() {
             <Route path="/admin/page/products" element={<Products/>}/>
             <Route path='/admin/page/queries' element={<Queries/>}/>
             <Route path='/admin/page/banners' element={<Banners/>}/>
+            <Route path='/admin/page/orders' element={<Orders/>}/>
             {/* <Route path='/admin/page/test' element={<Test/>}/> */}
             <Route path="/admin/page/error" element={<Error/>}/>
           </Routes>
