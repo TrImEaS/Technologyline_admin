@@ -12,6 +12,23 @@ export default function Orders() {
   const [selectedOrder, setSelectedOrder] = useState(null);
   const [ordersStates, setOrdersStates] = useState([])
   const [showModal, setShowModal] = useState(false);
+  const [filtered, setFiltered] = useState([]);
+  const [activeFilters, setActiveFilters] = useState([]);
+  const bgClasses = {
+    'Pedido no procesado': "border-pink-400/95",
+    'Pedido en proceso': "border-yellow-400/95",
+    'Pedido despachado': "border-blue-500/95",
+    'Pedido finalizado': "border-green-500/95",
+    'Pedido cancelado': "border-red-500/95",
+  };
+
+  const textClasses = {
+    'Pedido no procesado': "text-pink-400",
+    'Pedido en proceso': "text-yellow-400",
+    'Pedido despachado': "text-blue-500",
+    'Pedido finalizado': "text-green-500",
+    'Pedido cancelado': "text-red-500",
+  };
 
   useEffect(()=> {
     axios.get(`${API_URL}/api/page/getOrdersStates?t=${Date.now()}`)
@@ -26,7 +43,10 @@ export default function Orders() {
 
   const handleSearch = () => {
     axios.get(`${API_URL}/api/page/getClientOrders?id=${searchClient}&movement=${searchMovement}&t=${Date.now()}`)
-    .then(response => setOrders(response.data))
+    .then(res => {
+      setOrders(res.data);
+      setFiltered(res.data);
+    })
     .catch(error => console.error("Error fetching orders:", error));
   }
 
@@ -122,14 +142,30 @@ export default function Orders() {
       }
     });
   }
+  
+  const toggleFilter = (status) => {
+    const next = activeFilters.includes(status)
+      ? activeFilters.filter(s => s !== status)
+      : [...activeFilters, status];
+
+    setActiveFilters(next);
+    if (next.length) {
+      setFiltered(orders.filter(o => next.includes(o.order_header.order_state)));
+    } else {
+      setFiltered(orders);
+    }
+  };
+
+  const getBackgroundColor = id => bgClasses[id] || "bg-gray-500"
+  const getTextColor = id => textClasses[id] || "bg-gray-500"
 
   return (
     <div className='flex gap-10 flex-wrap w-full p-10 max-sm:flex-col justify-center max-sm:items-center relative'>
-      <section className="flex flex-col w-fit justify-center gap-6">
+      <section className="flex flex-col w-fit justify-center gap-5">
         <h1 className='w-fit max-sm:w-fit text-2xl text-white font-semibold'>Pedidos de clientes</h1>
         
-        <article className="w-fit flex gap-5 max-sm:w-fit mb-4">
-          <div className="w-fit mb-4">
+        <article className="w-fit flex gap-5 max-sm:w-fit">
+          <div className="w-fit">
             <label htmlFor="client" className="block text-lg font-medium mb-2 text-white">Número de cliente:</label>
             <input
               type="text"
@@ -141,7 +177,7 @@ export default function Orders() {
             />
           </div>
 
-          <div className="w-fit mb-4">
+          <div className="w-fit">
             <label htmlFor="movement" className="block text-lg font-medium mb-2 text-white">Número de pedido:</label>
             <input
               type="text"
@@ -161,46 +197,70 @@ export default function Orders() {
           >
             Buscar
           </button>
-
         </article>
+
+        <div className="flex flex-wrap bg-black/30 rounded-lg justify-center items-center w-full mt-10 p-2 py-3 gap-3">
+          {Object.entries(bgClasses).map(([status, color], i) => (
+            <button
+              key={status}
+              onClick={() => toggleFilter(status)}
+              className={`rounded shadow w-fit flex gap-4 items-center justify-center text-sm text-left ${activeFilters.includes(status) ? 'ring-4 ring-offset-1 ring-green-400' : ''}`}
+            >
+              <div key={i} className="flex items-center border border-white p-1 rounded-lg gap-2">
+                <div className={`${color} w-4 h-4 rounded border-4`} />
+                <span className="text-slate-100">{status.replace('Pedido','').toUpperCase()}</span>
+              </div>
+            </button>
+          ))}
+        </div>
+
+        {activeFilters.length > 0 && (
+          <button
+            onClick={() => { setActiveFilters([]); setFiltered(orders); }}
+            className="mb-2 text-sm text-blue-600 font-semibold bg-slate-100 w-fit mx-auto px-2 py-1 rounded-lg hover:underline"
+          >
+            Limpiar filtros
+          </button>
+        )}
       </section>
 
-      <section className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6 w-full">
-        {orders.map(o => (
+
+      <section className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6 w-full">
+        {filtered.map(o => (
           <div 
             key={o.order_header.id} 
             onClick={() => openOrder(o)}
-            className="p-4 bg-white rounded-lg border shadow hover:shadow-page-blue-normal hover:shadow-sm hover:border-page-blue-normal cursor-pointer transition"
+            className={`border-[10px] ${getBackgroundColor(o.order_header.order_state)} p-4 bg-black/30 text-white rounded-lg border hover:scale-105 cursor-pointer transition`}
           >
-            <p className="uppercase italic"><strong className="text-slate-800">Pedido #{o.order_header.movement.toString().padStart(8, '0')}</strong></p>
-            <p><strong className="text-slate-800">Numero de cliente:</strong> {o.order_header.client_data.id}</p>
-            <p><strong className="text-slate-800">Estado:</strong> {o.order_header.order_state}</p>
-            <p><strong className="text-slate-800">Total:</strong> ${formattedPrice(o.order_header.total_price)}</p>
-            <p><strong className="text-slate-800">Fecha:</strong> {new Date(o.order_header.date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric'})}</p>
-            <p><strong className="text-slate-800">Factura:</strong> {o.order_header.invoice_number === 0 ? 'Sin factura adjunta' : 'Con factura adjunta'}</p>
+            <p className={`uppercase italic ${getTextColor(o.order_header.order_state)}`}><strong>Pedido #{o.order_header.movement.toString().padStart(8, '0')}</strong></p>
+            <p className={`${getTextColor(o.order_header.order_state)}`}><strong>Estado:</strong> {o.order_header.order_state.replace('Pedido','').toUpperCase()}</p>
+            <p><strong className={`${getTextColor(o.order_header.order_state)}`}>N° de cliente:</strong> {o.order_header.client_data.id}</p>
+            <p><strong className={`${getTextColor(o.order_header.order_state)}`}>Total:</strong> ${formattedPrice(o.order_header.total_price)}</p>
+            <p><strong className={`${getTextColor(o.order_header.order_state)}`}>Fecha:</strong> {new Date(o.order_header.date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric'})}</p>
+            <p><strong className={`${getTextColor(o.order_header.order_state)}`}>Factura:</strong> {o.order_header.invoice_number === 0 ? 'Sin factura adjunta' : 'Con factura adjunta'}</p>
           </div>
         ))}
 
         {orders.length === 0 && (
-          <div className="col-span-1 md:col-span-2 lg:col-span-3 p-4 bg-white rounded-lg border shadow text-center">
+          <div className="col-span-2 md:col-span-3 lg:col-span-4 p-4 bg-white rounded-lg border shadow w-full text-center">
             <p>No se encontraron pedidos.</p>
           </div>
         )}
       </section>
 
       {showModal && selectedOrder && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-          <div className="bg-white w-[80%] max-lg:w-[95%] min-h-[80vh] justify-between max-h-[90vh] flex flex-col p-8 max-sm:p-5 rounded-lg shadow-lg overflow-auto">
+        <div className={`fixed inset-0 flex items-center justify-center z-50`}>
+          <div className={`border-8 bg-white ${getBackgroundColor(selectedOrder.order_header.order_state)} w-[80%] max-lg:w-[95%] min-h-[80vh] justify-between max-h-[90vh] flex flex-col p-8 max-sm:p-5 rounded-lg shadow-lg border border-black overflow-auto`}>
             <div className="flex-col relative flex gap-6 w-full">
               <div className="absolute right-2">
-                <button onClick={() => setShowModal(false)} className="text-blue-500 hover:text-blue-700 text-2xl duration-300">
+                <button onClick={() => setShowModal(false)} className="text-black/50 hover:text-black/80 text-2xl duration-300">
                   <FaTimesCircle />
                 </button>
               </div>
 
               <div>
                 <h2 className="text-xl tracking-wide"><strong className="text-slate-800">Estado:</strong>
-                <span className="ml-1 font-bold text-slate-800">{selectedOrder.order_header.order_state}</span></h2>
+                <span className="ml-1 font-bold text-slate-800">{selectedOrder.order_header.order_state.replace('Pedido','').toUpperCase()}</span></h2>
                 <h2 className="text-xl tracking-wide"><strong className="text-slate-800">Pedido #{selectedOrder.order_header.movement.toString().padStart(8, '0')}</strong></h2>
               </div>
               
@@ -249,7 +309,7 @@ export default function Orders() {
                   </thead>
                   <tbody>
                     {selectedOrder.order_details.map((d, i) => (
-                      <tr key={i} className="border-t border-page-blue-normal">
+                      <tr key={i} className="border-t border-black/50 border-page-blue-normal">
                         <td className="p-2 text-xs max-md:text-[10px]">{d.sku}</td>
                         <td className="p-2 text-xs max-md:text-[10px] tracking-tight">{d.name.replace(/EAN(?::\s*|\s+)\d{5,}/gi, '')}</td>
                         <td className="p-2 text-xs max-md:text-[10px] text-center">{d.quantity}</td>
@@ -265,7 +325,7 @@ export default function Orders() {
               <div className="h-full flex items-end justify-center mt-4">
                 <button
                   title="Descargar factura"
-                  className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded duration-300 disabled:opacity-50'
+                  className='bg-black/50 hover:bg-black/80 text-white px-4 py-2 rounded duration-300 disabled:opacity-50'
                   onClick={setClientBill}
                 >
                   Subir factura
@@ -275,7 +335,7 @@ export default function Orders() {
                <div className="h-full flex items-end justify-center mt-4">
                 <button
                   title="Cambiar estado del pedido"
-                  className='bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded duration-300 disabled:opacity-50'
+                  className='bg-black/50 hover:bg-black/80 text-white px-4 py-2 rounded duration-300 disabled:opacity-50'
                   onClick={changeOrderState}
                 >
                   Cambiar estado del pedido

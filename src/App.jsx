@@ -12,7 +12,7 @@ import Orders from './Pages/Orders.jsx'
 import { ProductsProvider } from './Context/ProductsContext.jsx'
 
 export default function App() {
-  const [login, setLogin] = useState(false)
+  const [login, setLogin] = useState(true)
   const [user, setUser] = useState('')
 
   return (
