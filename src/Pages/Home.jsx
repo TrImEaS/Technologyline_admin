@@ -1,6 +1,6 @@
 import { useState, useEffect } from "react"
-import Swal from "sweetalert2"
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaCrown, FaDotCircle, FaTrashAlt } from "react-icons/fa"
+import Swal from "sweetalert2"
 import axios from "axios"
 
 const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;

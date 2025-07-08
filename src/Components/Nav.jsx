@@ -3,13 +3,14 @@ import { NavLink, useLocation } from 'react-router-dom';
 import { FaEnvelopeOpenText } from "react-icons/fa6";
 import axios from "axios";
 import Swal from 'sweetalert2';
-
+import { usePage } from '../Context/PageContext.jsx'
 const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 
-export default function Nav({ user }) {
+export default function Nav() {
   const path = useLocation().pathname;
   const [resellersData, setResellersData] = useState([]);
   const [iconView, setIconView] = useState(true);
+  const { user } = usePage()
 
   const getData = () => {
     axios.get(`${API_URL}/api/page/resellersData`)

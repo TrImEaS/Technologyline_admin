@@ -3,6 +3,7 @@ import { FaTimesCircle } from "react-icons/fa";
 import formattedPrice from "../Utils/useFormattedPrice";
 import Swal from "sweetalert2";
 import axios from "axios";
+import { usePage } from '../Context/PageContext.jsx'
 const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 
 export default function Orders() {
@@ -14,6 +15,7 @@ export default function Orders() {
   const [showModal, setShowModal] = useState(false);
   const [filtered, setFiltered] = useState([]);
   const [activeFilters, setActiveFilters] = useState([]);
+  const { user } = usePage()
   const bgClasses = {
     'Pedido no procesado': "border-pink-400/95",
     'Pedido en proceso': "border-yellow-400/95",
@@ -21,7 +23,6 @@ export default function Orders() {
     'Pedido finalizado': "border-green-500/95",
     'Pedido cancelado': "border-red-500/95",
   };
-
   const textClasses = {
     'Pedido no procesado': "text-pink-400",
     'Pedido en proceso': "text-yellow-400",
@@ -29,6 +30,7 @@ export default function Orders() {
     'Pedido finalizado': "text-green-500",
     'Pedido cancelado': "text-red-500",
   };
+  const canceledOptions = {options: ['Sin stock', 'Cliente se arrepintio', 'Envio caro para cliente', 'Sin respuestas de cliente', 'Cliente inexistente (posible bot)', 'Otros']}
 
   useEffect(()=> {
     axios.get(`${API_URL}/api/page/getOrdersStates?t=${Date.now()}`)
@@ -45,10 +47,12 @@ export default function Orders() {
     axios.get(`${API_URL}/api/page/getClientOrders?id=${searchClient}&movement=${searchMovement}&t=${Date.now()}`)
     .then(res => {
       setOrders(res.data);
-      setFiltered(res.data);
+      const filteredOrders = res.data.filter(o => o.order_header.order_state !== 'Pedido cancelado');
+      setFiltered(filteredOrders);
+      setActiveFilters(['Pedido no procesado', 'Pedido en proceso', 'Pedido despachado', 'Pedido finalizado']);
     })
     .catch(error => console.error("Error fetching orders:", error));
-  }
+  };
 
   const setClientBill = async () => {
     if (!selectedOrder) return;
@@ -115,34 +119,60 @@ export default function Orders() {
     Swal.fire({
       title: 'Cambiar estado del pedido',
       input: 'select',
-      inputOptions: ordersStates.filter(o => o.id !== 1).reduce((acc, state) => {
-        acc[state.id] = state.name;
-        return acc;
-      }, {}),
+      inputOptions: ordersStates
+        .filter(o => o.id !== 1)
+        .reduce((acc, state) => {
+          acc[state.id] = state.name;
+          return acc;
+        }, {}),
       inputPlaceholder: 'Selecciona un estado',
       showCancelButton: true,
       confirmButtonText: 'Cambiar',
       cancelButtonText: 'Cancelar',
-    }).then((result) => {
-      if (result.isConfirmed && result.value) {
-        axios.patch(`${API_URL}/api/page/changeOrderState`, {
-          orderId: selectedOrder.order_header.id,
-          state: +result.value
-        })
-        .then(() => {
-          Swal.fire('Éxito', 'Estado del pedido actualizado correctamente.', 'success');
-          setShowModal(false);
-          setSelectedOrder(null);
-          handleSearch();
-        })
-        .catch(error => {
-          console.error("Error changing order state:", error);
-          Swal.fire('Error', 'No se pudo cambiar el estado del pedido.', 'error');
+    }).then(async (result) => {
+      if (!result.isConfirmed || !result.value) return;
+
+      let observations = '';
+
+      const selectedState = ordersStates.find(s => s.id === +result.value)?.name;
+
+      if (selectedState === 'Pedido cancelado') {
+        const res = await Swal.fire({
+          title: '¿Por qué se canceló?',
+          input: 'select',
+          inputOptions: canceledOptions.options.reduce((acc, option) => {
+            acc[option] = option;
+            return acc;
+          }, {}),
+          inputPlaceholder: 'Selecciona una opción',
+          showCancelButton: true,
+          confirmButtonText: 'Aceptar',
+          cancelButtonText: 'Cancelar',
         });
+
+        if (!res.isConfirmed || !res.value) return;
+        observations = res.value;
       }
+
+      axios.patch(`${API_URL}/api/page/changeOrderState`, {
+        orderId: selectedOrder.order_header.id,
+        state: +result.value,
+        user: user,
+        observations: observations
+      })
+      .then(() => {
+        Swal.fire('Éxito', 'Estado del pedido actualizado correctamente.', 'success');
+        setShowModal(false);
+        setSelectedOrder(null);
+        handleSearch();
+      })
+      .catch(error => {
+        console.error("Error changing order state:", error);
+        Swal.fire('Error', 'No se pudo cambiar el estado del pedido.', 'error');
+      });
     });
-  }
-  
+  };
+
   const toggleFilter = (status) => {
     const next = activeFilters.includes(status)
       ? activeFilters.filter(s => s !== status)
@@ -204,7 +234,7 @@ export default function Orders() {
             <button
               key={status}
               onClick={() => toggleFilter(status)}
-              className={`rounded shadow w-fit flex gap-4 items-center justify-center text-sm text-left ${activeFilters.includes(status) ? 'ring-4 ring-offset-1 ring-green-400' : ''}`}
+              className={`rounded-lg shadow w-fit flex gap-4 items-center justify-center text-sm text-left ${activeFilters.includes(status) ? 'ring-4 ring-green-400' : ''}`}
             >
               <div key={i} className="flex items-center border border-white p-1 rounded-lg gap-2">
                 <div className={`${color} w-4 h-4 rounded border-4`} />
@@ -217,7 +247,7 @@ export default function Orders() {
         {activeFilters.length > 0 && (
           <button
             onClick={() => { setActiveFilters([]); setFiltered(orders); }}
-            className="mb-2 text-sm text-blue-600 font-semibold bg-slate-100 w-fit mx-auto px-2 py-1 rounded-lg hover:underline"
+            className="mb-2 text-sm text-blue-600 font-semibold bg-black/40 w-fit mx-auto px-2 py-1 rounded-lg hover:underline"
           >
             Limpiar filtros
           </button>
@@ -234,7 +264,9 @@ export default function Orders() {
           >
             <p className={`uppercase italic ${getTextColor(o.order_header.order_state)}`}><strong>Pedido #{o.order_header.movement.toString().padStart(8, '0')}</strong></p>
             <p className={`${getTextColor(o.order_header.order_state)}`}><strong>Estado:</strong> {o.order_header.order_state.replace('Pedido','').toUpperCase()}</p>
+            <p><strong className={`${getTextColor(o.order_header.order_state)}`}>Observacion:</strong> {o.order_header.observations}</p>
             <p><strong className={`${getTextColor(o.order_header.order_state)}`}>N° de cliente:</strong> {o.order_header.client_data.id}</p>
+            <p><strong className={`${getTextColor(o.order_header.order_state)}`}>Atendido por:</strong> <span className="uppercase">{o.order_header.user || '- - -'}</span></p>
             <p><strong className={`${getTextColor(o.order_header.order_state)}`}>Total:</strong> ${formattedPrice(o.order_header.total_price)}</p>
             <p><strong className={`${getTextColor(o.order_header.order_state)}`}>Fecha:</strong> {new Date(o.order_header.date).toLocaleDateString('es-AR', { day: '2-digit', month: '2-digit', year: 'numeric'})}</p>
             <p><strong className={`${getTextColor(o.order_header.order_state)}`}>Factura:</strong> {o.order_header.invoice_number === 0 ? 'Sin factura adjunta' : 'Con factura adjunta'}</p>
@@ -267,8 +299,10 @@ export default function Orders() {
               {/* Datos del cliente */}
               <div>
                 <h2 className="text-lg text-slate-800"><strong>Datos de pedido:</strong></h2>
-                <p className="text-sm max-sm:text-[12px]"><strong className="text-slate-800">-Numero de cliente:</strong> {selectedOrder.order_header.client_data.id}</p>
-                <p className="text-sm max-sm:text-[12px]"><strong className="text-slate-800">-Nombre:</strong> {selectedOrder.order_header.client_data.fullname}</p>
+                <p className="text-sm max-sm:text-[12px]"><strong className="text-slate-800">-Atendido por:</strong> <span className="uppercase">{selectedOrder.order_header.user}</span></p>
+                <p className="text-sm max-sm:text-[12px]"><strong className="text-slate-800">-Observacion:</strong> {selectedOrder.order_header.observations}</p>
+                <p className="text-sm max-sm:text-[12px]"><strong className="text-slate-800">-Numero cliente:</strong> {selectedOrder.order_header.client_data.id}</p>
+                <p className="text-sm max-sm:text-[12px]"><strong className="text-slate-800">-Nombre cliente:</strong> {selectedOrder.order_header.client_data.fullname}</p>
                 <p className="text-sm max-sm:text-[12px]"><strong className="text-slate-800">-DNI/CUIL:</strong> {selectedOrder.order_header.client_data.dni}</p>
                 <p className="text-sm max-sm:text-[12px]"><strong className="text-slate-800">-Celular:</strong> {selectedOrder.order_header.client_data.phone}</p>
                 <p className="text-sm max-sm:text-[12px]"><strong className="text-slate-800">-Email:</strong> {selectedOrder.order_header.client_data.email}</p>

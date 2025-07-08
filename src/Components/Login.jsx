@@ -1,12 +1,12 @@
 import { useEffect, useState } from "react"
 import Swal from 'sweetalert2'
-
+import { usePage } from '../Context/PageContext.jsx'
 const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 
-
-export default function Login({ loginSetter, userSetter }) {
+export default function Login() {
   const [username, setUsername] = useState('')
   const [password, setPassword] = useState('')
+  const { setUser, setLogin } = usePage()
 
   useEffect(() => {
     // Verificar si hay una hora de inicio de sesión guardada
@@ -27,7 +27,7 @@ export default function Login({ loginSetter, userSetter }) {
         });
       }
       else {
-        loginSetter(true)
+        setLogin(true)
       }
     }
   }, []);
@@ -66,8 +66,8 @@ export default function Login({ loginSetter, userSetter }) {
             // Guardar la hora de conexión en localStorage
             localStorage.setItem('loginTime', Date.now());
 
-            userSetter(username);
-            loginSetter(true);
+            setUser(username);
+            setLogin(true);
           }
         });
       } else {
