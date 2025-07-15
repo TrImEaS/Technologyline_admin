@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import { useState, useEffect } from "react"
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaCrown, FaDotCircle, FaTrashAlt } from "react-icons/fa"
 import Swal from "sweetalert2"
@@ -16,6 +17,7 @@ export default function Home() {
   const startIndex = 0
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 13
+  const date = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
 
   const getData = () => {
     fetch(`${API_URL}/api/products?all=true`)
@@ -110,6 +112,17 @@ export default function Home() {
   const totalPages = Math.ceil(clients.length / itemsPerPage);
   const displayedArticles = clients.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
 
+  const exportToExcel = () => {
+    const exportData = displayedArticles.map(data => ({
+      'ID': data.id,
+      'EMAIL': data.email,
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, `mails suscriptores (${date}).xlsx`);
+  };
+  
   if(loading)
     return <div className="text-2xl">Loading...</div>
 
@@ -179,12 +192,18 @@ export default function Home() {
             <h1 className="font-bold text-2xl max-sm:text-xl text-white/90 tracking-wide">
               Emails Subscritos
             </h1>
-            <button
-              onClick={() => getAllMails(clients)}
-              className="px-4 py-2 cursor-pointer font-medium max-sm:text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
-            >
-              Copiar todos
-            </button>
+            <div className="flex gap-3">
+              <button onClick={()=> exportToExcel()} className='text-center font-medium bg-green-500 p-2 rounded-lg text-white hover:bg-green-500/70 duration-300'>
+                Exportar mails
+              </button>
+
+              <button
+                onClick={() => getAllMails(clients)}
+                className="px-4 py-2 cursor-pointer font-medium max-sm:text-xs bg-white/10 hover:bg-white/20 text-white rounded-lg shadow-md transition-all duration-300 flex items-center gap-2"
+              >
+                Copiar todos
+              </button>
+            </div>
           </div>
           <div className="grid grid-cols-2 gap-4 w-full max-lg:grid-cols-1">
             {displayedArticles.reverse().slice(startIndex, startIndex + 10).map(client => (

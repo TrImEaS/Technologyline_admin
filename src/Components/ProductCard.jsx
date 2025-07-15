@@ -1,6 +1,5 @@
 import { NavLink } from "react-router-dom";
 import { useState } from "react";
-import page_icon from '../Assets/page-icon.jpeg';
 import Swal from "sweetalert2";
 import Spinner from "./Products/Spinner";
 

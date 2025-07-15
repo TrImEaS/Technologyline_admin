@@ -1,3 +1,4 @@
+import * as XLSX from 'xlsx';
 import axios from "axios"
 import { useEffect, useState } from "react"
 import { FaAngleDoubleLeft, FaAngleDoubleRight, FaAngleLeft, FaAngleRight, FaStar, FaTimes } from "react-icons/fa"
@@ -9,6 +10,7 @@ export default function Queries() {
   const [selectedMail, setSelectedMail] = useState(null)
   const [currentPage, setCurrentPage] = useState(1);
   const [itemsPerPage, setItemsPerPage] = useState(13);
+  const date = new Date().toLocaleDateString('es-AR').replace(/\//g, '-');
 
   const getResellersData = () => {
     axios.get(`${API_URL}/api/page/resellersData`)
@@ -53,6 +55,17 @@ export default function Queries() {
 
   const totalPages = Math.ceil(resellersData.length / itemsPerPage);
   const displayedArticles = resellersData.slice((currentPage - 1) * itemsPerPage, currentPage * itemsPerPage);
+
+  const exportToExcel = () => {
+    const exportData = displayedArticles.map(data => ({
+      'NOMBRE': data.fullname,
+      'EMAIL': data.email,
+    }));
+    const ws = XLSX.utils.json_to_sheet(exportData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, 'Sheet1');
+    XLSX.writeFile(wb, `mails revendedores (${date}).xlsx`);
+  };
 
   return (
     <div className="flex flex-col justify-center items-center w-full h-full">
@@ -158,6 +171,10 @@ export default function Queries() {
             </button>
           </div>
         </div>
+
+        <button onClick={()=> exportToExcel()} className='text-center font-medium bg-green-500 p-2 rounded-lg text-white hover:bg-green-500/70 duration-300'>
+          Exportar mails
+        </button>
       </div>
     </div>
   )
