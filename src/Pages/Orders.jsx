@@ -30,7 +30,7 @@ export default function Orders() {
     'Pedido finalizado': "text-green-500",
     'Pedido cancelado': "text-red-500",
   };
-  const canceledOptions = {options: ['Sin stock', 'Cliente se arrepintio', 'Envio caro para cliente', 'Sin respuestas de cliente', 'Cliente inexistente (posible bot)', 'Otros']}
+  const canceledOptions = { options: ['Sin stock', 'Cliente se arrepintio', 'Envio caro para cliente', 'Sin respuestas de cliente', 'Cliente inexistente (posible bot)', 'Otros'] }
 
   useEffect(()=> {
     axios.get(`${API_URL}/api/page/getOrdersStates?t=${Date.now()}`)
@@ -129,7 +129,8 @@ export default function Orders() {
       showCancelButton: true,
       confirmButtonText: 'Cambiar',
       cancelButtonText: 'Cancelar',
-    }).then(async (result) => {
+    })
+    .then(async (result) => {
       if (!result.isConfirmed || !result.value) return;
 
       let observations = '';

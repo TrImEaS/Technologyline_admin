@@ -26,7 +26,8 @@ export default function Nav() {
     if (path === '/admin/page/queries') {
       getData();
       setIconView(false);
-    } else {
+    } 
+    else {
       getData();
       setIconView(true);
     }
@@ -35,9 +36,7 @@ export default function Nav() {
   useEffect(() => {
     getData();
 
-    const interval = setInterval(() => {
-      getData();
-    }, 5 * 60 * 1000);
+    const interval = setInterval(() => getData(), 5 * 60 * 1000);
 
     return () => clearInterval(interval);
   }, []);
