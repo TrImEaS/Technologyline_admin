@@ -160,7 +160,7 @@ export default function Nav() {
     Swal.fire({
       title: 'Selecciona el archivo de stock',
       input: 'file',
-      inputAttributes: { accept: '.xls,.xlsx' },
+      inputAttributes: { accept: '.xls,.xlsx,.xlsm' },
       showCancelButton: true,
       confirmButtonText: 'Actualizar Stock',
       cancelButtonText: 'Cancelar',
