@@ -10,7 +10,8 @@ const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API
 export default function Products() {
   const [product, setProduct] = useState(null);
   const [productImages, setProductImages] = useState([]);
-  const [aditionalData, setAditionalData] = useState({ peso: "", volume: "" });
+  const [originalAditionalData, setOriginalAditionalData] = useState({ weight: "", volume: "" });
+  const [aditionalData, setAditionalData] = useState({ weight: "", volume: "" });
   const [loading, setLoading] = useState(true);
   const [description, setDescription] = useState(null);
   const [specifications, setSpecifications] = useState(null);
@@ -25,7 +26,7 @@ export default function Products() {
     setShowEditor(true);
   };
 
-  useEffect(() => {
+  const fetchData = async () => {
     setLoading(true)
     const query = new URLSearchParams(location.search);
     const productQuery = query.get('product');
@@ -46,13 +47,26 @@ export default function Products() {
       setSpecifications(newProduct.specifications);
 
       document.title = `${newProduct.name} | Technology Line`;
+
+      setOriginalAditionalData({
+        weight: newProduct.weight || "",
+        volume: newProduct.volume || ""
+      });
+      setAditionalData({
+        weight: newProduct.weight || "",
+        volume: newProduct.volume || ""
+      });
     })
     .catch(e => {
       console.error(e)
       return navigate('/admin/page/error')
     })
     .finally(() => setLoading(false))
-  }, [location.search, navigate]);
+  }
+
+  useEffect(() => {
+    fetchData()
+  }, [location.search, navigate])
 
   const handleInputChange = (e) => {
     const { name, value } = e.target;
@@ -83,11 +97,34 @@ export default function Products() {
     }
   };
 
+  const saveAditionalData = async () => {
+    const data = {
+      weight: aditionalData.weight,
+      volume: aditionalData.volume
+    }
+
+    axios.patch(`${API_URL}/api/products/?sku=${product.sku}`, data)
+    .then(res => {
+      if(res.status === 200) {
+        fetchData()
+        return alert('Datos adicionales guardados correctamente');
+      }
+      throw new Error('Error al guardar los datos adicionales');
+    })
+    .catch(e => {
+      alert(e.message)
+      console.error(e);
+    })
+  }
+
   if (loading) return <Spinner />;
   
   const formattedPrice = (price) => {
     return price ? parseFloat(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-----'
   }
+
+  const isSame = aditionalData.weight === originalAditionalData.weight && aditionalData.volume === originalAditionalData.volume
+
 
   return (
     <section className='flex relative flex-col items-center h-full w-[90%] min-h-[600px] gap-y-10 pb-14 pt-5 max-md:pt-10'>
@@ -197,31 +234,42 @@ export default function Products() {
             </button>
           </div>
 
-          <div className='flex flex-col text-white w-full justify-center gap-5'>
-            <h3>Datos adicionales: </h3>
+          <div className='flex flex-col text-white w-full justify-center items-center gap-5 mt-5 border-t border-gray-300 pt-5'>
+            <h3 className='text-black'>Datos adicionales </h3>
             
             <article className='flex gap-2'>
-              <label htmlFor="peso" className='min-w-[70px]'>Peso: </label>
+              <label htmlFor="weight" className='min-w-[110px] text-black'>Peso (kg): </label>
               <input
-                className='rounded-sm outline-none px-2 max-w-[100px] text-black' 
+                className='outline-none px-2 max-w-[150px] text-black border-[#777] border bg-transparent hover:border-x-white hover:border-t-white focus:border-x-white focus:border-t-white rounded-lg duration-300' 
                 type="text" 
-                name="peso" 
-                id="peso"
-                value={aditionalData.peso} 
+                name="weight" 
+                id="weight"
+                autoComplete='off'
+                value={aditionalData.weight} 
                 onChange={handleInputChange} 
               />
             </article>
 
             <article className='flex gap-2'>
-              <label htmlFor="volume" className='min-w-[70px]'>Volumen: </label>
+              <label htmlFor="volume" className='min-w-[110px] text-black'>Volumen (m³): </label>
               <input 
                 value={aditionalData.volume} 
                 onChange={handleInputChange}           
-                className='rounded-sm outline-none px-2 max-w-[100px] text-black' 
+                className='outline-none px-2 max-w-[150px] text-black border-[#777] border bg-transparent hover:border-x-white hover:border-t-white focus:border-x-white focus:border-t-white rounded-lg duration-300' 
                 type="text"
                 name="volume" 
-                id="volume" />
+                id="volume" 
+                autoComplete='off'
+              />
             </article>
+
+            <button 
+              onClick={()=> saveAditionalData()} 
+              className='bg-green-500 hover:bg-green-600 text-white min-w-[200px] mx-auto font-bold py-2 px-4 rounded-lg duration-300 disabled:bg-green-500/50 disabled:hover:bg-green-500/50'
+              disabled={isSame}
+            >
+              Guardar
+            </button>
           </div>
         </section>
       </header>

@@ -130,7 +130,7 @@ export default function ArticleEditor() {
   }
 
   return (
-    <section className="flex flex-col justify-center items-center h-full min-h-[500px] w-[80%] z-10 py-5">
+    <section className="flex flex-col justify-center items-center h-full min-h-[500px] w-[80%] max-lg:w-full max-lg:px-2 z-10 py-5">
       <article className="flex w-full flex-col gap-5 relative items-center">
         <div className='flex gap-5 justify-center items-center'>
           <div className='flex border bg-gray-100 rounded-full flex-col w-[500px] text-black gap-2 justify-center items-center px-2 z-[9999]'>

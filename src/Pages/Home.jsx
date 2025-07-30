@@ -6,7 +6,6 @@ import axios from "axios"
 
 const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 
-
 export default function Home() {
   const [topProducts, setTopProducts] = useState([])
   const [loading, setLoading] = useState(true)
@@ -124,7 +123,7 @@ export default function Home() {
   };
   
   if(loading)
-    return <div className="text-2xl">Loading...</div>
+    return <div className="text-2xl text-white">Loading...</div>
 
   return (
     <section className="relative flex flex-col w-3/4 justify-center gap-5 min-h-[400px] py-10">
