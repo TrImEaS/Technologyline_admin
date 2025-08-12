@@ -9,6 +9,7 @@ import Error from './Pages/Error.jsx';
 import Queries from './Pages/Queries.jsx';
 import Banners from './Pages/Banners.jsx';
 import Orders from './Pages/Orders.jsx';
+import AddProduct from './Pages/AddProduct.jsx';
 import { ProductsProvider } from './Context/ProductsContext.jsx';
 import { PageProvider, usePage } from './Context/PageContext.jsx';
 
@@ -39,6 +40,7 @@ function AppContent() {
             <Route path='/admin/page/queries' element={<Queries />} />
             <Route path='/admin/page/banners' element={<Banners />} />
             <Route path='/admin/page/orders' element={<Orders />} />
+            <Route path="/admin/page/add_product" element={<AddProduct />} />
             <Route path="/admin/page/error" element={<Error />} />
           </Routes>
         </main>

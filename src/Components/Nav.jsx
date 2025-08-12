@@ -214,12 +214,6 @@ export default function Nav() {
         </NavLink>
 
         <NavLink
-          to={'/admin/page/article_editor'} 
-          className={`${path.includes('/admin/page/article_editor') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
-          Productos
-        </NavLink>
-
-        <NavLink
           to={'/admin/page/banners'} 
           className={`${path.includes('/admin/page/banners') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
           Banners
@@ -229,6 +223,36 @@ export default function Nav() {
           to={'/admin/page/orders'} 
           className={`${path.includes('/admin/page/orders') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
           Pedidos
+        </NavLink>
+
+        <NavLink
+          to={'/admin/page/article_editor'} 
+          className={`${path.includes('/admin/page/article_editor') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
+          Productos
+        </NavLink>
+
+        <NavLink
+          to={'/admin/page/add_product'} 
+          className={`${path.includes('/admin/page/add_product') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
+          Agregar Producto
+        </NavLink>
+
+        <NavLink
+          to={'/admin/page/add_category'} 
+          className={`${path.includes('/admin/page/add_category') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
+          Crear Categoria
+        </NavLink>
+
+        <NavLink
+          to={'/admin/page/add_subcategory'} 
+          className={`${path.includes('/admin/page/add_subcategory') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
+          Crear Subcategoria
+        </NavLink>
+
+        <NavLink
+          to={'/admin/page/add_brand'} 
+          className={`${path.includes('/admin/page/add_brand') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
+          Crear Marca
         </NavLink>
       </article>
 
