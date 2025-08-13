@@ -3,6 +3,7 @@ import axios from 'axios'
 import { useDropzone } from 'react-dropzone'
 import { FaTimes } from 'react-icons/fa'
 import RichEditor from '../Components/Editor/RichEditor'
+import Swal from 'sweetalert2'
 
 const API_URL = import.meta.env.MODE === 'production'
   ? import.meta.env.VITE_API_URL_PROD
@@ -91,12 +92,52 @@ export default function AddProduct() {
     multiple: true,
   })
 
+  const handleSubmit = (e) => {
+    e.preventDefault()
+    const { sku, name, stock, category, sub_category, brand, descriptions, specifications, weight, volume, tax_percentage, gbp_id, images } = formData
+    const isEmpty = (val) => val === null || val === undefined || String(val).trim() === '';
+    
+    if (isEmpty(sku)) return Swal.fire('Atención!', 'El SKU no puede estar vacío.', 'warning');
+    if (isEmpty(name)) return Swal.fire('Atención!', 'El nombre no puede estar vacío.', 'warning');
+    if (isEmpty(stock)) return Swal.fire('Atención!', 'Se requiere indicar stock.', 'warning');
+    if (isEmpty(category)) return Swal.fire('Atención!', 'La categoría no puede estar vacía.', 'warning');
+    if (isEmpty(sub_category)) return Swal.fire('Atención!', 'La subcategoría no puede estar vacía.', 'warning');
+    if (isEmpty(brand)) return Swal.fire('Atención!', 'La marca no puede estar vacía.', 'warning');
+    if (isEmpty(descriptions)) return Swal.fire('Atención!', 'La descripcion no puede estar vacía.', 'warning');
+    if (isEmpty(specifications)) return Swal.fire('Atención!', 'La especificacion no puede estar vacía.', 'warning');
+    if (isEmpty(weight)) return Swal.fire('Atención!', 'Se requiere indicar peso.', 'warning');
+    if (isEmpty(volume)) return Swal.fire('Atención!', 'Se requiere indicar volumen.', 'warning');
+    if (isEmpty(tax_percentage)) return Swal.fire('Atención!', 'Se requiere indicar porcenaje de IVA.', 'warning');
+
+    if(volume <= 0) return Swal.fire('Atencion!','El volumen no puede ser menor o igual a 0.', 'warning')
+    if(weight <= 0) return Swal.fire('Atencion!','El peso no puede ser menor o igual a 0.', 'warning')
+    if(tax_percentage <= 0) return Swal.fire('Atencion!','El IVA no puede ser menor o igual a 0.', 'warning')
+    if(sku.length < 6) return Swal.fire('Atencion!','El SKU debe tener al menos 6 caracteres.', 'warning')
+    if(name.length < 3) return Swal.fire('Atencion!','El nombre debe tener al menos 3 caracteres.', 'warning')
+
+    const data = {
+      sku: sku.trim().toUpperCase(),
+      name: name.trim().toUpperCase(),
+      stock: +stock,
+      category: category.trim().toLowerCase(),
+      sub_category: sub_category.trim().toLowerCase(),
+      brand: brand.trim().toUpperCase(),
+      descriptions: descriptions.trim(),
+      specifications: specifications.trim(),
+      weight: parseFloat(weight),
+      volume: parseFloat(volume),
+      tax_percentage: parseFloat(tax_percentage),
+      gbp_id: +gbp_id,
+      images: images
+    }
+  }
+
   return (
     <div className="flex flex-1 gap-5 flex-col w-3/4 max-sm:w-full p-5">
       <h1 className='text-2xl w-full text-center text-white underline'>Crear nuevo producto</h1>
-      <form className="flex flex-col text-white gap-4">
-        <FormInput label="SKU" name="sku" value={formData.sku} onChange={handleChange} placeholder="Ej: ABC123" />
-        <FormInput label="Nombre" name="name" value={formData.name} onChange={handleChange} placeholder="Ej: Producto lorem ipsum 123 MOD: EJ102" />
+      <form onSubmit={handleSubmit} className="flex flex-col text-white gap-4">
+        <FormInput label="SKU" name="sku" value={formData.sku} onChange={handleChange} minLength={6} placeholder="Ej: ABC123" />
+        <FormInput label="Nombre" name="name" value={formData.name} onChange={handleChange} minLength={3} placeholder="Ej: Producto lorem ipsum 123 MOD: EJ102" />
         <FormInput label="Stock" name="stock" value={formData.stock} onChange={handleChange} placeholder="Ej: 10" />
         <FormSelect
           label="Categoría"
@@ -106,7 +147,7 @@ export default function AddProduct() {
             handleChange(e)
             const catId = Number(e.target.value)
             setFormData(prev => ({ ...prev, sub_category: '' }))
-            setSubcategories(originalSubcategories.filter(sc => sc.category_id === catId))
+            setSubcategories(originalSubcategories.filter(sc => +sc.category_id === +catId))
           }}
           options={categories.map(cat => ({ value: cat.id, label: cat.name }))}
           placeholder="Seleccionar categoría"
@@ -125,7 +166,7 @@ export default function AddProduct() {
           name="brand"
           value={formData.brand}
           onChange={handleChange}
-          options={brands.map(sub => ({ value: sub.id, label: sub.name }))}
+          options={brands.map(sub => ({ value: sub.id, label: sub.name.toUpperCase() }))}
           placeholder="Seleccionar marca"
         />
         <FormButton label="Descripción" value={formData.descriptions} onClick={() => setOpenEditor('descriptions')} />
@@ -158,7 +199,7 @@ export default function AddProduct() {
           )}
         </section>
 
-        <button type="submit" className="bg-blue-600 p-2 mt-4 rounded">Enviar</button>
+        <button className="bg-blue-600 p-2 mt-4 rounded">Enviar</button>
       </form>
 
       {openEditor && (
@@ -176,7 +217,7 @@ export default function AddProduct() {
   )
 }
 
-function FormInput({ label, name, value, onChange, placeholder = '' }) {
+function FormInput({ label, name, value, onChange, placeholder = '', minLength = 0 }) {
   return (
     <section className="bg-black/20 w-full p-4 rounded flex gap-2 items-center">
       <label className='min-w-[130px]' htmlFor={name}>{label}:</label>
@@ -186,6 +227,7 @@ function FormInput({ label, name, value, onChange, placeholder = '' }) {
         type="text"
         value={value}
         onChange={onChange}
+        minLength={minLength}
         placeholder={placeholder}
         className="text-black outline-none px-2 py-1 w-full"
       />
@@ -205,7 +247,7 @@ function FormSelect({ label, name, value, onChange, options = [], placeholder = 
         disabled={disabled}
         className="text-black outline-none px-2 py-1 w-full"
       >
-        <option value="">{placeholder}</option>
+        <option value="" disabled>{placeholder}</option>
         {options.map(opt => (
           <option key={opt.value} value={opt.value}>{opt.label}</option>
         ))}
