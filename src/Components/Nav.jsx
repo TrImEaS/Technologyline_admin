@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, useLocation } from 'react-router-dom';
-import { FaEnvelopeOpenText } from "react-icons/fa6";
+import { FaEnvelopeOpenText, FaChevronDown, FaPlus, FaList, FaSitemap, FaTags } from "react-icons/fa6";
 import axios from "axios";
 import Swal from 'sweetalert2';
 import { usePage } from '../Context/PageContext.jsx'
@@ -10,6 +10,7 @@ export default function Nav() {
   const path = useLocation().pathname;
   const [resellersData, setResellersData] = useState([]);
   const [iconView, setIconView] = useState(true);
+  const [dropdownOpen, setDropdownOpen] = useState(false);
   const { user } = usePage()
 
   const getData = () => {
@@ -206,18 +207,12 @@ export default function Nav() {
 
   return (
     <section className="flex z-50 max-sm:flex-col text-white border-b border-[#fafafa] border-opacity-40 relative items-center justify-between px-10 w-full h-[70px] max-sm:px-2">
-      <article>
+      <article className="flex gap-4 items-center">
         <NavLink
           to={'/admin/page/'} 
           className={`${path === '/admin/page/' ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
           Indicadores
-        </NavLink>
-
-        <NavLink
-          to={'/admin/page/banners'} 
-          className={`${path.includes('/admin/page/banners') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
-          Banners
-        </NavLink>
+        </NavLink>  
 
         <NavLink
           to={'/admin/page/orders'} 
@@ -231,29 +226,24 @@ export default function Nav() {
           Productos
         </NavLink>
 
-        <NavLink
-          to={'/admin/page/add_product'} 
-          className={`${path.includes('/admin/page/add_product') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
-          Agregar Producto
-        </NavLink>
-
-        <NavLink
-          to={'/admin/page/manage/categories'} 
-          className={`${path.includes('/admin/page/manage/categories') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
-          Crear Categoria
-        </NavLink>
-
-        <NavLink
-          to={'/admin/page/manage/subcategories'} 
-          className={`${path.includes('/admin/page/manage/subcategories') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
-          Crear Subcategoria
-        </NavLink>
-
-        <NavLink
-          to={'/admin/page/manage/brands'} 
-          className={`${path.includes('/admin/page/manage/brands') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
-          Crear Marca
-        </NavLink>
+        <div className="relative">
+          <button
+            type="button"
+            className="p-2 rounded-xl font-semibold flex items-center gap-2 bg-white text-black hover:bg-gray-200 duration-300 border border-gray-300"
+            onClick={() => setDropdownOpen((prev) => !prev)}
+          >
+            <FaChevronDown /> Gestión
+          </button>
+          {dropdownOpen && (
+            <div className="absolute left-0 mt-2 w-56 bg-white text-black rounded-xl shadow-lg z-50 flex flex-col border border-gray-300">
+              <NavLink to={'/admin/page/add_product'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaPlus /> Agregar Producto</NavLink>
+              <NavLink to={'/admin/page/manage/categories'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaList /> Crear Categoría</NavLink>
+              <NavLink to={'/admin/page/manage/subcategories'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaSitemap /> Crear Subcategoría</NavLink>
+              <NavLink to={'/admin/page/manage/brands'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaTags /> Crear Marca</NavLink>
+              <NavLink to={'/admin/page/banners'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaPlus /> Banners</NavLink>
+            </div>
+          )}
+        </div>
       </article>
 
       <article className='min-w-[300px] flex gap-x-5 items-center'>
