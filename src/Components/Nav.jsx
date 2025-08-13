@@ -238,20 +238,20 @@ export default function Nav() {
         </NavLink>
 
         <NavLink
-          to={'/admin/page/add_category'} 
-          className={`${path.includes('/admin/page/add_category') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
+          to={'/admin/page/manage/categories'} 
+          className={`${path.includes('/admin/page/manage/categories') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
           Crear Categoria
         </NavLink>
 
         <NavLink
-          to={'/admin/page/add_subcategory'} 
-          className={`${path.includes('/admin/page/add_subcategory') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
+          to={'/admin/page/manage/subcategories'} 
+          className={`${path.includes('/admin/page/manage/subcategories') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
           Crear Subcategoria
         </NavLink>
 
         <NavLink
-          to={'/admin/page/add_brand'} 
-          className={`${path.includes('/admin/page/add_brand') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
+          to={'/admin/page/manage/brands'} 
+          className={`${path.includes('/admin/page/manage/brands') ? 'isActive' : ''} p-2 rounded-xl font-semibold hover:bg-white hover:text-black duration-300`}>
           Crear Marca
         </NavLink>
       </article>

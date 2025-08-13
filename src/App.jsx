@@ -10,6 +10,9 @@ import Queries from './Pages/Queries.jsx';
 import Banners from './Pages/Banners.jsx';
 import Orders from './Pages/Orders.jsx';
 import AddProduct from './Pages/AddProduct.jsx';
+import Categories from './Pages/Magement/Categories.jsx';
+import Subcategories from './Pages/Magement/Subcategories.jsx';
+import Brands from './Pages/Magement/Brands.jsx';
 import { ProductsProvider } from './Context/ProductsContext.jsx';
 import { PageProvider, usePage } from './Context/PageContext.jsx';
 
@@ -42,6 +45,9 @@ function AppContent() {
             <Route path='/admin/page/orders' element={<Orders />} />
             <Route path="/admin/page/add_product" element={<AddProduct />} />
             <Route path="/admin/page/error" element={<Error />} />
+            <Route path="/admin/page/manage/categories" element={<Categories />} />
+            <Route path="/admin/page/manage/subcategories" element={<Subcategories />} />
+            <Route path="/admin/page/manage/brands" element={<Brands />} />
           </Routes>
         </main>
       )
