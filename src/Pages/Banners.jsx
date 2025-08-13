@@ -7,6 +7,8 @@ const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API
 export default function Banners() {
   const [desktopBanners, setDesktopBanners] = useState([]);
   const [mobileBanners, setMobileBanners] = useState([]);
+  const [desktopChanged, setDesktopChanged] = useState(false);
+  const [mobileChanged, setMobileChanged] = useState(false);
 
   useEffect(() => {
     fetchBanners();
@@ -21,11 +23,73 @@ export default function Banners() {
         return res.json();
       })
       .then(data => {
-        // Filtrar banners según el nombre para móvil y escritorio
-        setMobileBanners(data.filter(banner => banner.name.toLowerCase().includes('mobile')));
-        setDesktopBanners(data.filter(banner => banner.name.toLowerCase().includes('desktop')));
+        // Filtrar banners según el nombre para móvil y escritorio y ordenar por position
+        setMobileBanners(data.filter(banner => banner.name.toLowerCase().includes('mobile')).sort((a, b) => a.position - b.position));
+        setDesktopBanners(data.filter(banner => banner.name.toLowerCase().includes('desktop')).sort((a, b) => a.position - b.position));
+        setMobileChanged(false);
+        setDesktopChanged(false);
       })
       .catch(error => console.error(error));
+  };
+  // Funciones para mover banners
+  const moveBanner = (type, index, direction) => {
+    if (type === 'mobile') {
+      const arr = [...mobileBanners];
+      if (direction === 'up' && index > 0) {
+        [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+        setMobileBanners(arr);
+        setMobileChanged(true);
+      }
+      if (direction === 'down' && index < arr.length - 1) {
+        [arr[index + 1], arr[index]] = [arr[index], arr[index + 1]];
+        setMobileBanners(arr);
+        setMobileChanged(true);
+      }
+    } else if (type === 'desktop') {
+      const arr = [...desktopBanners];
+      if (direction === 'up' && index > 0) {
+        [arr[index - 1], arr[index]] = [arr[index], arr[index - 1]];
+        setDesktopBanners(arr);
+        setDesktopChanged(true);
+      }
+      if (direction === 'down' && index < arr.length - 1) {
+        [arr[index + 1], arr[index]] = [arr[index], arr[index + 1]];
+        setDesktopBanners(arr);
+        setDesktopChanged(true);
+      }
+    }
+  };
+
+  // Guardar cambios de orden
+  const saveOrder = (type) => {
+    let bannersToSave = [];
+    if (type === 'mobile') {
+      bannersToSave = mobileBanners.map((banner, idx) => ({ id: banner.id, position: idx + 1 }));
+    } else {
+      bannersToSave = desktopBanners.map((banner, idx) => ({ id: banner.id, position: idx + 1 }));
+    }
+    Swal.showLoading();
+    fetch(`${API_URL}/api/page/updateBannerOrder`, {
+      method: 'PATCH',
+      headers: {
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({ banners: bannersToSave }),
+    })
+      .then(res => res.json())
+      .then(data => {
+        Swal.close();
+        if (data.status === 'success') {
+          Swal.fire('¡Éxito!', 'Orden actualizado correctamente', 'success');
+          fetchBanners();
+        } else {
+          Swal.fire('Error', data.message || 'No se pudo actualizar el orden', 'error');
+        }
+      })
+      .catch(error => {
+        Swal.close();
+        Swal.fire('Error', error.toString(), 'error');
+      });
   };
 
   const handleBannerAction = (id, name) => {
@@ -136,7 +200,7 @@ export default function Banners() {
             <h3 className="flex items-center justify-center font-bold text-xl bg-black border bg-opacity-15 w-full h-14 rounded-t-lg">Banners Mobile</h3>
 
             <div className="flex flex-col w-full items-center gap-10 p-2 border-x rounded-lg">
-              {mobileBanners.map((banner) => (
+              {mobileBanners.map((banner, idx) => (
                 <div key={banner.id + new Date()} className="flex flex-col w-full items-center rounded-3xl gap-2 border-b border-white pb-3">
                   {banner.path ? (
                     <img
@@ -149,14 +213,32 @@ export default function Banners() {
                       Sin banner
                     </div>
                   )}
-                  <button
-                    onClick={() => handleBannerAction(banner.id, banner.name)}
-                    className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600"
-                  >
-                    {`Actualizar Banner ${banner.id - 5}`}
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => moveBanner('mobile', idx, 'up')}
+                      disabled={idx === 0}
+                      className={`px-2 py-1 rounded bg-gray-500 text-white ${idx === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'}`}
+                    >↑</button>
+                    <button
+                      onClick={() => moveBanner('mobile', idx, 'down')}
+                      disabled={idx === mobileBanners.length - 1}
+                      className={`px-2 py-1 rounded bg-gray-500 text-white ${idx === mobileBanners.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'}`}
+                    >↓</button>
+                    <button
+                      onClick={() => handleBannerAction(banner.id, banner.name)}
+                      className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600"
+                    >
+                      {`Actualizar Banner ${banner.id - 5}`}
+                    </button>
+                  </div>
                 </div>
               ))}
+              {mobileChanged && (
+                <button
+                  onClick={() => saveOrder('mobile')}
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >Guardar cambios</button>
+              )}
             </div>
           </section>
 
@@ -165,7 +247,7 @@ export default function Banners() {
             <h3 className="flex items-center justify-center font-bold text-xl bg-black border bg-opacity-15 w-full h-14 rounded-t-lg">Banners Escritorio</h3>
 
             <div className="flex flex-col w-full items-center gap-10 p-2 border-x rounded-lg">
-              {desktopBanners.map((banner) => (
+              {desktopBanners.map((banner, idx) => (
                 <div key={banner.id + new Date()} className="flex flex-col w-full items-center rounded-3xl gap-2 border-b border-white pb-3">
                   {banner.path ? (
                     <img
@@ -178,14 +260,32 @@ export default function Banners() {
                       Sin banner
                     </div>
                   )}
-                  <button
-                    onClick={() => handleBannerAction(banner.id, banner.name)}
-                    className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600"
-                  >
-                    {`Actualizar Banner ${banner.id}`}
-                  </button>
+                  <div className="flex gap-2">
+                    <button
+                      onClick={() => moveBanner('desktop', idx, 'up')}
+                      disabled={idx === 0}
+                      className={`px-2 py-1 rounded bg-gray-500 text-white ${idx === 0 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'}`}
+                    >↑</button>
+                    <button
+                      onClick={() => moveBanner('desktop', idx, 'down')}
+                      disabled={idx === desktopBanners.length - 1}
+                      className={`px-2 py-1 rounded bg-gray-500 text-white ${idx === desktopBanners.length - 1 ? 'opacity-50 cursor-not-allowed' : 'hover:bg-gray-700'}`}
+                    >↓</button>
+                    <button
+                      onClick={() => handleBannerAction(banner.id, banner.name)}
+                      className="px-4 py-2 bg-emerald-500 text-white rounded hover:bg-emerald-600"
+                    >
+                      {`Actualizar Banner ${banner.id}`}
+                    </button>
+                  </div>
                 </div>
               ))}
+              {desktopChanged && (
+                <button
+                  onClick={() => saveOrder('desktop')}
+                  className="mt-4 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+                >Guardar cambios</button>
+              )}
             </div>
           </section>
         </main>
