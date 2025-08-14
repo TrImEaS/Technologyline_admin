@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import axios from 'axios'
 import { useDropzone } from 'react-dropzone'
 import { FaTimes } from 'react-icons/fa'
-import RichEditor from '../Components/Editor/RichEditor'
+import RichEditor from '../../Components/Editor/RichEditor'
 import Swal from 'sweetalert2'
 
 const API_URL = import.meta.env.MODE === 'production'
@@ -26,13 +26,12 @@ export default function AddProduct() {
     images: [],
   })
 
+  const [isSubmitting, setIsSubmitting] = useState(false)
   const numericFields = ['stock', 'weight', 'volume', 'tax_percentage', 'gbp_id']
   const [categories, setCategories] = useState([])
   const [originalSubcategories, setOriginalSubcategories] = useState([])
   const [subCategories, setSubcategories] = useState([])
   const [brands, setBrands] = useState([])
-
-  // estados para abrir/cerrar editores
   const [openEditor, setOpenEditor] = useState(null)
 
   useEffect(() => {
@@ -92,8 +91,10 @@ export default function AddProduct() {
     multiple: true,
   })
 
-  const handleSubmit = (e) => {
+  const handleSubmit = async (e) => {
     e.preventDefault()
+    setIsSubmitting(true)
+
     const { sku, name, stock, category, sub_category, brand, descriptions, specifications, weight, volume, tax_percentage, gbp_id, images } = formData
     const isEmpty = (val) => val === null || val === undefined || String(val).trim() === '';
     
@@ -115,20 +116,64 @@ export default function AddProduct() {
     if(sku.length < 6) return Swal.fire('Atencion!','El SKU debe tener al menos 6 caracteres.', 'warning')
     if(name.length < 3) return Swal.fire('Atencion!','El nombre debe tener al menos 3 caracteres.', 'warning')
 
-    const data = {
-      sku: sku.trim().toUpperCase(),
-      name: name.trim().toUpperCase(),
-      stock: +stock,
-      category: category.trim().toLowerCase(),
-      sub_category: sub_category.trim().toLowerCase(),
-      brand: brand.trim().toUpperCase(),
-      descriptions: descriptions.trim(),
-      specifications: specifications.trim(),
-      weight: parseFloat(weight),
-      volume: parseFloat(volume),
-      tax_percentage: parseFloat(tax_percentage),
-      gbp_id: +gbp_id,
-      images: images
+    try {
+      // Primero subir las imágenes
+      const uploadedImages = []
+      for (let i = 0; i < images.length; i++) {
+        const formData = new FormData()
+        formData.append('image', images[i].file)
+        formData.append('sku', sku.trim().toUpperCase())
+        formData.append('index', i)
+        
+        const { data } = await axios.post(`${API_URL}/api/products/addImage`, formData, {
+          headers: {
+            'Content-Type': 'multipart/form-data'
+          }
+        })
+        uploadedImages.push(data.imageUrl)
+      }
+
+      // Luego crear el producto con las URLs de las imágenes
+      const productData = {
+        sku: sku.trim().toUpperCase(),
+        name: name.trim().toUpperCase(),
+        stock: +stock,
+        category: category.trim().toLowerCase(),
+        sub_category: sub_category.trim().toLowerCase(),
+        brand: brand.trim().toUpperCase(),
+        descriptions: descriptions.trim(),
+        specifications: specifications.trim(),
+        weight: parseFloat(weight),
+        volume: parseFloat(volume),
+        tax_percentage: parseFloat(tax_percentage),
+        gbp_id: +gbp_id,
+        images: uploadedImages
+      }
+
+      await axios.post(`${API_URL}/api/products/`, productData)
+      
+      Swal.fire('Éxito', 'Producto creado exitosamente!', 'success')
+      // Resetear el formulario después de éxito
+      setFormData({
+        sku: '',
+        name: '',
+        stock: '',
+        category: '',
+        sub_category: '',
+        brand: '',
+        descriptions: '',
+        specifications: '',
+        weight: '',
+        volume: '',
+        tax_percentage: '',
+        gbp_id: '',
+        images: [],
+      })
+    } catch (error) {
+      console.error('Error:', error)
+      Swal.fire('Error', `Ocurrió un error al crear producto\nDetalle: ${error.response?.data?.error || error.message}`, 'error')
+    } finally {
+      setIsSubmitting(false)
     }
   }
 
@@ -198,8 +243,12 @@ export default function AddProduct() {
             </div>
           )}
         </section>
-
-        <button className="bg-blue-600 p-2 mt-4 rounded">Enviar</button>
+        <button 
+          className="bg-blue-600 p-2 mt-4 rounded disabled:opacity-50" 
+          disabled={isSubmitting}
+        >
+          {isSubmitting ? 'Enviando...' : 'Enviar'}
+        </button>
       </form>
 
       {openEditor && (

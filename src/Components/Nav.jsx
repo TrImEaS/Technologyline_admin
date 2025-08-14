@@ -236,11 +236,11 @@ export default function Nav() {
           </button>
           {dropdownOpen && (
             <div className="absolute left-0 mt-2 w-56 bg-white text-black rounded-xl shadow-lg z-50 flex flex-col border border-gray-300">
-              <NavLink to={'/admin/page/add_product'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaPlus /> Agregar Producto</NavLink>
+              <NavLink to={'/admin/page/manage/add_product'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaPlus /> Agregar Producto</NavLink>
               <NavLink to={'/admin/page/manage/categories'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaList /> Crear Categoría</NavLink>
               <NavLink to={'/admin/page/manage/subcategories'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaSitemap /> Crear Subcategoría</NavLink>
               <NavLink to={'/admin/page/manage/brands'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaTags /> Crear Marca</NavLink>
-              <NavLink to={'/admin/page/banners'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaPlus /> Banners</NavLink>
+              <NavLink to={'/admin/page/manage/banners'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaPlus /> Banners</NavLink>
             </div>
           )}
         </div>
