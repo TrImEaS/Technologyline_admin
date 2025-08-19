@@ -127,6 +127,7 @@ export default function Nav() {
               <NavLink to={'/admin/page/manage/brands'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaTags /> Crear Marca</NavLink>
               <NavLink to={'/admin/page/manage/banners'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaPlus /> Banners</NavLink>
               <NavLink to={'/admin/page/manage/categories_carousel'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaList /> Carousel de categorias</NavLink>
+              <NavLink to={'/admin/page/manage/brands_carousel'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaTags /> Carousel de marcas</NavLink>
             </div>
           )}
         </div>
