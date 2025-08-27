@@ -9,7 +9,7 @@ const API_URL = import.meta.env.MODE === 'production'
   ? import.meta.env.VITE_API_URL_PROD
   : import.meta.env.VITE_API_URL_DEV
 
-export default function AddProduct() {
+export default function AddProduct () {
   const [formData, setFormData] = useState({
     sku: '',
     name: '',
@@ -23,7 +23,7 @@ export default function AddProduct() {
     volume: '',
     tax_percentage: '',
     gbp_id: '',
-    images: [],
+    images: []
   })
 
   const [isSubmitting, setIsSubmitting] = useState(false)
@@ -37,25 +37,25 @@ export default function AddProduct() {
   useEffect(() => {
     const timestamp = new Date().getTime()
     axios.get(`${API_URL}/api/products/getCategories?t=${timestamp}`)
-    .then(res => setCategories(res.data))
-    .catch(e => error.log('Error fetching categories:', e))
-    
+      .then(res => setCategories(res.data))
+      .catch(e => console.error('Error fetching categories:', e))
+
     axios.get(`${API_URL}/api/products/getSubcategories?t=${timestamp}`)
-    .then(res => {
-      setOriginalSubcategories(res.data)
-      setSubcategories(res.data)
-    })
-    .catch(e => error.log('Error fetching subcategories:', e))
+      .then(res => {
+        setOriginalSubcategories(res.data)
+        setSubcategories(res.data)
+      })
+      .catch(e => console.error('Error fetching subcategories:', e))
 
     axios.get(`${API_URL}/api/products/getBrands?t=${timestamp}`)
-    .then(res => {
-      setBrands(res.data)
-    })
-    .catch(e => error.log('Error fetching brands:', e))
+      .then(res => {
+        setBrands(res.data)
+      })
+      .catch(e => console.error('Error fetching brands:', e))
   }, [])
 
   useEffect(() => {
-    document.title = `Crear producto | Technology Line`
+    document.title = 'Crear producto | Technology Line'
   }, [])
 
   const handleChange = e => {
@@ -76,7 +76,7 @@ export default function AddProduct() {
   const onDrop = useCallback(acceptedFiles => {
     const nuevos = acceptedFiles.map(file => ({
       file,
-      preview: URL.createObjectURL(file),
+      preview: URL.createObjectURL(file)
     }))
     setFormData(prev => ({ ...prev, images: [...prev.images, ...nuevos] }))
   }, [])
@@ -88,7 +88,7 @@ export default function AddProduct() {
   const { getRootProps, getInputProps, isDragActive } = useDropzone({
     onDrop,
     accept: { 'image/*': [] },
-    multiple: true,
+    multiple: true
   })
 
   const handleSubmit = async (e) => {
@@ -96,25 +96,73 @@ export default function AddProduct() {
     setIsSubmitting(true)
 
     const { sku, name, stock, category, sub_category, brand, descriptions, specifications, weight, volume, tax_percentage, gbp_id, images } = formData
-    const isEmpty = (val) => val === null || val === undefined || String(val).trim() === '';
-    
-    if (isEmpty(sku)) return Swal.fire('Atención!', 'El SKU no puede estar vacío.', 'warning');
-    if (isEmpty(name)) return Swal.fire('Atención!', 'El nombre no puede estar vacío.', 'warning');
-    if (isEmpty(stock)) return Swal.fire('Atención!', 'Se requiere indicar stock.', 'warning');
-    if (isEmpty(category)) return Swal.fire('Atención!', 'La categoría no puede estar vacía.', 'warning');
-    if (isEmpty(sub_category)) return Swal.fire('Atención!', 'La subcategoría no puede estar vacía.', 'warning');
-    if (isEmpty(brand)) return Swal.fire('Atención!', 'La marca no puede estar vacía.', 'warning');
-    if (isEmpty(descriptions)) return Swal.fire('Atención!', 'La descripcion no puede estar vacía.', 'warning');
-    if (isEmpty(specifications)) return Swal.fire('Atención!', 'La especificacion no puede estar vacía.', 'warning');
-    if (isEmpty(weight)) return Swal.fire('Atención!', 'Se requiere indicar peso.', 'warning');
-    if (isEmpty(volume)) return Swal.fire('Atención!', 'Se requiere indicar volumen.', 'warning');
-    if (isEmpty(tax_percentage)) return Swal.fire('Atención!', 'Se requiere indicar porcenaje de IVA.', 'warning');
+    const isEmpty = (val) => val === null || val === undefined || String(val).trim() === ''
 
-    if(volume <= 0) return Swal.fire('Atencion!','El volumen no puede ser menor o igual a 0.', 'warning')
-    if(weight <= 0) return Swal.fire('Atencion!','El peso no puede ser menor o igual a 0.', 'warning')
-    if(tax_percentage <= 0) return Swal.fire('Atencion!','El IVA no puede ser menor o igual a 0.', 'warning')
-    if(sku.length < 6) return Swal.fire('Atencion!','El SKU debe tener al menos 6 caracteres.', 'warning')
-    if(name.length < 3) return Swal.fire('Atencion!','El nombre debe tener al menos 3 caracteres.', 'warning')
+    if (isEmpty(sku)) {
+      Swal.fire('Atención!', 'El SKU no puede estar vacío.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (isEmpty(name)) {
+      Swal.fire('Atención!', 'El nombre no puede estar vacío.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (isEmpty(stock)) {
+      Swal.fire('Atención!', 'Se requiere indicar stock.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (isEmpty(category)) {
+      Swal.fire('Atención!', 'La categoría no puede estar vacía.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (isEmpty(sub_category)) {
+      Swal.fire('Atención!', 'La subcategoría no puede estar vacía.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (isEmpty(brand)) {
+      Swal.fire('Atención!', 'La marca no puede estar vacía.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (isEmpty(descriptions)) {
+      Swal.fire('Atención!', 'La descripcion no puede estar vacía.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (isEmpty(specifications)) {
+      Swal.fire('Atención!', 'La especificacion no puede estar vacía.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (isEmpty(weight)) {
+      Swal.fire('Atención!', 'Se requiere indicar peso.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (isEmpty(volume)) {
+      Swal.fire('Atención!', 'Se requiere indicar volumen.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (isEmpty(tax_percentage)) {
+      Swal.fire('Atención!', 'Se requiere indicar porcenaje de IVA.', 'warning')
+      return setIsSubmitting(false)
+    }
+
+    if (volume <= 0) {
+      Swal.fire('Atencion!', 'El volumen no puede ser menor o igual a 0.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (weight <= 0) {
+      Swal.fire('Atencion!', 'El peso no puede ser menor o igual a 0.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (tax_percentage <= 0) {
+      Swal.fire('Atencion!', 'El IVA no puede ser menor o igual a 0.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (sku.length < 3) {
+      Swal.fire('Atencion!', 'El SKU debe tener al menos 3 caracteres.', 'warning')
+      return setIsSubmitting(false)
+    }
+    if (name.length < 3) {
+      Swal.fire('Atencion!', 'El nombre debe tener al menos 3 caracteres.', 'warning')
+      return setIsSubmitting(false)
+    }
 
     try {
       // Primero subir las imágenes
@@ -124,7 +172,7 @@ export default function AddProduct() {
         formData.append('image', images[i].file)
         formData.append('sku', sku.trim().toUpperCase())
         formData.append('index', i)
-        
+
         const { data } = await axios.post(`${API_URL}/api/products/addImage`, formData, {
           headers: {
             'Content-Type': 'multipart/form-data'
@@ -151,7 +199,7 @@ export default function AddProduct() {
       }
 
       await axios.post(`${API_URL}/api/products/`, productData)
-      
+
       Swal.fire('Éxito', 'Producto creado exitosamente!', 'success')
       // Resetear el formulario después de éxito
       setFormData({
@@ -167,7 +215,7 @@ export default function AddProduct() {
         volume: '',
         tax_percentage: '',
         gbp_id: '',
-        images: [],
+        images: []
       })
     } catch (error) {
       console.error('Error:', error)
@@ -181,7 +229,7 @@ export default function AddProduct() {
     <div className="flex flex-1 gap-5 flex-col w-3/4 max-sm:w-full p-5">
       <h1 className='text-2xl w-full text-center text-white underline'>Crear nuevo producto</h1>
       <form onSubmit={handleSubmit} className="flex flex-col text-white gap-4">
-        <FormInput label="SKU" name="sku" value={formData.sku} onChange={handleChange} minLength={6} placeholder="Ej: ABC123" />
+        <FormInput label="SKU" name="sku" value={formData.sku} onChange={handleChange} minLength={3} placeholder="Ej: ABC123" />
         <FormInput label="Nombre" name="name" value={formData.name} onChange={handleChange} minLength={3} placeholder="Ej: Producto lorem ipsum 123 MOD: EJ102" />
         <FormInput label="Stock" name="stock" value={formData.stock} onChange={handleChange} placeholder="Ej: 10" />
         <FormSelect
@@ -243,8 +291,8 @@ export default function AddProduct() {
             </div>
           )}
         </section>
-        <button 
-          className="bg-blue-600 p-2 mt-4 rounded disabled:opacity-50" 
+        <button
+          className="bg-blue-600 p-2 mt-4 rounded disabled:opacity-50"
           disabled={isSubmitting}
         >
           {isSubmitting ? 'Enviando...' : 'Enviar'}
@@ -266,7 +314,7 @@ export default function AddProduct() {
   )
 }
 
-function FormInput({ label, name, value, onChange, placeholder = '', minLength = 0 }) {
+function FormInput ({ label, name, value, onChange, placeholder = '', minLength = 0 }) {
   return (
     <section className="bg-black/20 w-full p-4 rounded flex gap-2 items-center">
       <label className='min-w-[130px]' htmlFor={name}>{label}:</label>
@@ -284,7 +332,7 @@ function FormInput({ label, name, value, onChange, placeholder = '', minLength =
   )
 }
 
-function FormSelect({ label, name, value, onChange, options = [], placeholder = '', disabled = false }) {
+function FormSelect ({ label, name, value, onChange, options = [], placeholder = '', disabled = false }) {
   return (
     <section className="bg-black/20 w-full p-4 rounded flex gap-2 items-center">
       <label className='min-w-[130px]' htmlFor={name}>{label}:</label>
@@ -305,7 +353,7 @@ function FormSelect({ label, name, value, onChange, options = [], placeholder = 
   )
 }
 
-function FormButton({ label, value, onClick }) {
+function FormButton ({ label, value, onClick }) {
   return (
     <section className="bg-black/20 w-full p-4 rounded flex justify-between items-center">
       <span>{label}:</span>
