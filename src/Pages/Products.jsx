@@ -1,67 +1,70 @@
-import { useState, useEffect } from 'react';
-import { useNavigate, useLocation } from 'react-router-dom';
-import Spinner from '../Components/Products/Spinner.jsx';
-import axios from 'axios';
-import ImageSlider from '../Components/Products/ImageSlider.jsx';
-import RichEditor from '../Components/Editor/RichEditor';
+import { useState, useEffect } from 'react'
+import { useNavigate, useLocation } from 'react-router-dom'
+import Spinner from '../Components/Products/Spinner.jsx'
+import axios from 'axios'
+import ImageSlider from '../Components/Products/ImageSlider.jsx'
+import RichEditor from '../Components/Editor/RichEditor'
 
-const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
+const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV
 
-export default function Products() {
-  const [product, setProduct] = useState(null);
-  const [productImages, setProductImages] = useState([]);
-  const [originalAditionalData, setOriginalAditionalData] = useState({ weight: "", volume: "" });
-  const [aditionalData, setAditionalData] = useState({ weight: "", volume: "" });
-  const [loading, setLoading] = useState(true);
-  const [description, setDescription] = useState(null);
-  const [specifications, setSpecifications] = useState(null);
-  const [descriptionMenu, setDescriptionMenu] = useState('desc');
-  const [showEditor, setShowEditor] = useState(false);
-  const [editingField, setEditingField] = useState(null);
-  const location = useLocation();
-  const navigate = useNavigate();
+export default function Products () {
+  const [product, setProduct] = useState(null)
+  const [productImages, setProductImages] = useState([])
+  const [originalAditionalData, setOriginalAditionalData] = useState({ weight: '', volume: '' })
+  const [aditionalData, setAditionalData] = useState({ weight: '', volume: '' })
+  const [loading, setLoading] = useState(true)
+  const [description, setDescription] = useState(null)
+  const [specifications, setSpecifications] = useState(null)
+  const [faq, setFaq] = useState(null)
+  const [descriptionMenu, setDescriptionMenu] = useState('desc')
+  const [showEditor, setShowEditor] = useState(false)
+  const [editingField, setEditingField] = useState(null)
+  const location = useLocation()
+  const navigate = useNavigate()
 
   const editField = (field) => {
-    setEditingField(field);
-    setShowEditor(true);
-  };
+    setEditingField(field)
+    setShowEditor(true)
+  }
 
   const fetchData = async () => {
     setLoading(true)
-    const query = new URLSearchParams(location.search);
-    const productQuery = query.get('product');
-    
+    const query = new URLSearchParams(location.search)
+    const productQuery = query.get('product')
+
     if (!productQuery) {
-      navigate('/admin/page/error');
-      return;
+      navigate('/admin/page/error')
+      return
     }
 
     axios.get(`${API_URL}/api/products?sku=${productQuery}`)
-    .then(res => {
-      const newProduct = res.data[0]
-      if(!newProduct) throw new Error('Producto no encontrado');
+      .then(res => {
+        const newProduct = res.data[0]
+        if (!newProduct) throw new Error('Producto no encontrado')
 
-      setProduct(newProduct);
-      setProductImages(newProduct.img_urls);
-      setDescription(newProduct.descriptions);
-      setSpecifications(newProduct.specifications);
+        setProduct(newProduct)
+        setProductImages(newProduct.img_urls)
+        setDescription(newProduct.descriptions)
+        setSpecifications(newProduct.specifications)
+        setFaq(newProduct.faq)
+        console.log(newProduct.faq)
 
-      document.title = `${newProduct.name} | Technology Line`;
+        document.title = `${newProduct.name} | Technology Line`
 
-      setOriginalAditionalData({
-        weight: newProduct.weight || "",
-        volume: newProduct.volume || ""
-      });
-      setAditionalData({
-        weight: newProduct.weight || "",
-        volume: newProduct.volume || ""
-      });
-    })
-    .catch(e => {
-      console.error(e)
-      return navigate('/admin/page/error')
-    })
-    .finally(() => setLoading(false))
+        setOriginalAditionalData({
+          weight: newProduct.weight || '',
+          volume: newProduct.volume || ''
+        })
+        setAditionalData({
+          weight: newProduct.weight || '',
+          volume: newProduct.volume || ''
+        })
+      })
+      .catch(e => {
+        console.error(e)
+        return navigate('/admin/page/error')
+      })
+      .finally(() => setLoading(false))
   }
 
   useEffect(() => {
@@ -69,11 +72,11 @@ export default function Products() {
   }, [location.search, navigate])
 
   const handleInputChange = (e) => {
-    const { name, value } = e.target;
+    const { name, value } = e.target
     if (/^\d*\.?\d*$/.test(value)) {
-      setAditionalData((prev) => ({ ...prev, [name]: value }));
+      setAditionalData((prev) => ({ ...prev, [name]: value }))
     }
-  };
+  }
 
   const handleEditField = async (field, newValue) => {
     try {
@@ -81,21 +84,23 @@ export default function Products() {
         method: 'PATCH',
         headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify({ [field]: newValue })
-      });
-      if (!response.ok) throw new Error('Error al editar producto');
-      
+      })
+      if (!response.ok) throw new Error('Error al editar producto')
+
       if (field === 'descriptions') {
-        setDescription(newValue);
+        setDescription(newValue)
       } else if (field === 'specifications') {
-        setSpecifications(newValue);
+        setSpecifications(newValue)
+      } else if (field === 'faq') {
+        setFaq(newValue)
       }
-      
-      alert('Contenido actualizado con éxito!');
+
+      alert('Contenido actualizado con éxito!')
     } catch (err) {
-      console.error(err);
-      alert('Error al actualizar el contenido');
+      console.error(err)
+      alert('Error al actualizar el contenido')
     }
-  };
+  }
 
   const saveAditionalData = async () => {
     const data = {
@@ -104,27 +109,26 @@ export default function Products() {
     }
 
     axios.patch(`${API_URL}/api/products/?sku=${product.sku}`, data)
-    .then(res => {
-      if(res.status === 200) {
-        fetchData()
-        return alert('Datos adicionales guardados correctamente');
-      }
-      throw new Error('Error al guardar los datos adicionales');
-    })
-    .catch(e => {
-      alert(e.message)
-      console.error(e);
-    })
+      .then(res => {
+        if (res.status === 200) {
+          fetchData()
+          return alert('Datos adicionales guardados correctamente')
+        }
+        throw new Error('Error al guardar los datos adicionales')
+      })
+      .catch(e => {
+        alert(e.message)
+        console.error(e)
+      })
   }
 
-  if (loading) return <Spinner />;
-  
+  if (loading) return <Spinner />
+
   const formattedPrice = (price) => {
     return price ? parseFloat(price).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-----'
   }
 
   const isSame = aditionalData.weight === originalAditionalData.weight && aditionalData.volume === originalAditionalData.volume
-
 
   return (
     <section className='flex relative flex-col items-center h-full w-[90%] min-h-[600px] gap-y-10 pb-14 pt-5 max-md:pt-10'>
@@ -135,14 +139,14 @@ export default function Products() {
           </span>
 
           <h1 className='text-2xl font-semibold'>
-            {product.name.replace(/EAN.*/,'')}
+            {product.name.replace(/EAN.*/, '')}
           </h1>
 
-          {loading 
-            ? <div><Spinner /></div> 
-            : <ImageSlider 
-                loadedImages={productImages} 
-                setLoadedImages={setProductImages} 
+          {loading
+            ? <div><Spinner /></div>
+            : <ImageSlider
+                loadedImages={productImages}
+                setLoadedImages={setProductImages}
                 id={product.id}
                 sku={product.sku}
               />
@@ -166,50 +170,50 @@ export default function Products() {
                   <span>PROMO: EFECTIVO / TRANSFERENCIA BANCARIA: </span>
                   <p className='pl-5 font-semibold flex gap-1 text-[#15803d] items-center tracking-normal'>
                     <span>{`$${formattedPrice(product.price_list_2)}`}</span>
-                    <span className='text-xs text-[#dc7b26]'>(Ahorras: ${product.price_list_1 ? ((product.price_list_2 - product.price_list_1)*-1).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-----'})</span>
+                    <span className='text-xs text-[#dc7b26]'>(Ahorras: ${product.price_list_1 ? ((product.price_list_2 - product.price_list_1) * -1).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-----'})</span>
                   </p>
                 </div>
               </section>
-              
+
               <section className='flex flex-col items-center mb-5 w-full gap-y-3 justify-center'>
                 <span className='font-bold text-[#2563eb]'>¡Opcion de compra en cuotas fijas!</span>
 
                 <article className='flex flex-col'>
                   <p className='flex w-fit justify-center gap-1 p-1'>
-                    <span className='text-[#1e40af] font-semibold'>3</span> 
+                    <span className='text-[#1e40af] font-semibold'>3</span>
                     <span className='text-[#1e40af]'>cuotas</span>
-                    <span>de:</span> 
-                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_3)/3).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-----'}`}</span>
+                    <span>de:</span>
+                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_3) / 3).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-----'}`}</span>
                   </p>
-                </article>  
+                </article>
 
                 <article className='flex flex-col'>
                   <p className='flex w-fit justify-center gap-1 p-1'>
-                    <span className='text-[#1e40af] font-semibold'>6</span> 
+                    <span className='text-[#1e40af] font-semibold'>6</span>
                     <span className='text-[#1e40af]'>cuotas</span>
-                    <span>de:</span> 
-                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_4)/6).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-----'}`}</span>
+                    <span>de:</span>
+                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_4) / 6).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-----'}`}</span>
                   </p>
-                </article>  
+                </article>
 
                 <article className='flex flex-col'>
                   <p className='flex w-fit justify-center gap-1 p-1'>
-                    <span className='text-[#1e40af] font-semibold'>9</span> 
+                    <span className='text-[#1e40af] font-semibold'>9</span>
                     <span className='text-[#1e40af]'>cuotas</span>
-                    <span>de:</span> 
-                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_5)/9).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-----'}`}</span>
+                    <span>de:</span>
+                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_5) / 9).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-----'}`}</span>
                   </p>
-                </article>  
+                </article>
 
                 <article className='flex flex-col'>
                   <p className='flex w-fit justify-center gap-1 p-1'>
-                    <span className='text-[#1e40af] font-semibold'>12</span> 
+                    <span className='text-[#1e40af] font-semibold'>12</span>
                     <span className='text-[#1e40af]'>cuotas</span>
-                    <span>de:</span> 
-                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_6)/12).toLocaleString(undefined, {minimumFractionDigits: 2, maximumFractionDigits: 2}) : '-----'}`}</span>
+                    <span>de:</span>
+                    <span className='text-[#1e40af] font-semibold'>{`$${product.price_list_3 ? (parseFloat(product.price_list_6) / 12).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 }) : '-----'}`}</span>
                   </p>
 
-                </article>  
+                </article>
 
                 <ul className="flex text-3xl max-[1500px]:ml-0 gap-x-4">
                   <img className='bg-gray-700 rounded-lg w-[45px] h-[30px]' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon2.svg'/>
@@ -227,7 +231,7 @@ export default function Products() {
               DISPONIBILIDAD: {product.stock}
             </span>
             <button
-              onClick={()=> addProductToCart({ product })}
+              onClick={() => addProductToCart({ product })}
               className='max-sm:hidden bg-page-blue-normal active:text-sm active:duration-0 hover:bg-page-lightblue rounded-xl flex items-center justify-center text-sm font-bold bg-gradient-to-l from-sky-400 to-sky-800 duration-300 border border-gray-300 text-white py-1 px-2 w-[90%] h-[50px] cart hover:brightness-125'
             >
               AGREGAR AL CARRITO
@@ -236,35 +240,35 @@ export default function Products() {
 
           <div className='flex flex-col text-white w-full justify-center items-center gap-5 mt-5 border-t border-gray-300 pt-5'>
             <h3 className='text-black'>Datos adicionales </h3>
-            
+
             <article className='flex gap-2'>
               <label htmlFor="weight" className='min-w-[110px] text-black'>Peso (kg): </label>
               <input
-                className='outline-none px-2 max-w-[150px] text-black border-[#777] border bg-transparent hover:border-x-white hover:border-t-white focus:border-x-white focus:border-t-white rounded-lg duration-300' 
-                type="text" 
-                name="weight" 
+                className='outline-none px-2 max-w-[150px] text-black border-[#777] border bg-transparent hover:border-x-white hover:border-t-white focus:border-x-white focus:border-t-white rounded-lg duration-300'
+                type="text"
+                name="weight"
                 id="weight"
                 autoComplete='off'
-                value={aditionalData.weight} 
-                onChange={handleInputChange} 
+                value={aditionalData.weight}
+                onChange={handleInputChange}
               />
             </article>
 
             <article className='flex gap-2'>
               <label htmlFor="volume" className='min-w-[110px] text-black'>Volumen (m³): </label>
-              <input 
-                value={aditionalData.volume} 
-                onChange={handleInputChange}           
-                className='outline-none px-2 max-w-[150px] text-black border-[#777] border bg-transparent hover:border-x-white hover:border-t-white focus:border-x-white focus:border-t-white rounded-lg duration-300' 
+              <input
+                value={aditionalData.volume}
+                onChange={handleInputChange}
+                className='outline-none px-2 max-w-[150px] text-black border-[#777] border bg-transparent hover:border-x-white hover:border-t-white focus:border-x-white focus:border-t-white rounded-lg duration-300'
                 type="text"
-                name="volume" 
-                id="volume" 
+                name="volume"
+                id="volume"
                 autoComplete='off'
               />
             </article>
 
-            <button 
-              onClick={()=> saveAditionalData()} 
+            <button
+              onClick={() => saveAditionalData()}
               className='bg-green-500 hover:bg-green-600 text-white min-w-[200px] mx-auto font-bold py-2 px-4 rounded-lg duration-300 disabled:bg-green-500/50 disabled:hover:bg-green-500/50'
               disabled={isSame}
             >
@@ -276,17 +280,17 @@ export default function Products() {
 
       {showEditor && (
         <RichEditor
-          initialValue={editingField === 'desc' ? description : specifications}
-          title={editingField === 'desc' ? 'Descripción' : 'Especificaciones'}
+          initialValue={editingField === 'desc' ? description : editingField === 'spec' ? specifications : faq}
+          title={editingField === 'desc' ? 'Descripción' : editingField === 'spec' ? 'Especificaciones' : 'FAQ'}
           onSave={(content) => {
-            const field = editingField === 'desc' ? 'descriptions' : 'specifications';
-            handleEditField(field, content);
-            setShowEditor(false);
+            const field = editingField === 'desc' ? 'descriptions' : editingField === 'spec' ? 'specifications' : 'faq'
+            handleEditField(field, content)
+            setShowEditor(false)
           }}
           onClose={() => setShowEditor(false)}
         />
       )}
-      
+
       <div className='flex flex-col w-full bg-blue-400 rounded-lg border shadow-lg'>
         <div className='flex p-2 gap-x-3'>
           <span
@@ -300,6 +304,12 @@ export default function Products() {
             className={`${descriptionMenu === 'spec' ? 'text-white' : ''} font-bold hover:font-bold hover:text-white rounded-xl px-2 py-1 duration-300 cursor-pointer`}>
             Especificaciones
           </span>
+          <span className='py-1'>|</span>
+          <span
+            onClick={() => setDescriptionMenu('faq')}
+            className={`${descriptionMenu === 'faq' ? 'text-white' : ''} font-bold hover:font-bold hover:text-white rounded-xl px-2 py-1 duration-300 cursor-pointer`}>
+            FAQ
+          </span>
         </div>
 
         <div className='relative p-2 bg-gray-100 min-h-[100px]'>
@@ -311,17 +321,26 @@ export default function Products() {
                   dangerouslySetInnerHTML={{ __html: description || 'Este articulo no posee descripciones.' }} />
                 <span onClick={() => editField('desc')} className='absolute text-blue-400 hover:text-black cursor-pointer top-0 right-2 duration-300'>Editar</span>
               </div>
-            )
-            : (
+              )
+            : descriptionMenu === 'spec'
+              ? (
               <div>
                 <div
                   className='flex flex-col px-4 py-2 text-black'
                   dangerouslySetInnerHTML={{ __html: specifications || 'Este articulo no posee especificaciones.' }} />
                 <span onClick={() => editField('spec')} className='absolute text-blue-400 hover:text-black cursor-pointer top-0 right-2 duration-300'>Editar</span>
               </div>
-            )}
+                )
+              : (
+              <div>
+                <div
+                  className='flex flex-col px-4 py-2 text-black'
+                  dangerouslySetInnerHTML={{ __html: faq || 'Este articulo no posee preguntas frecuentes.' }} />
+                <span onClick={() => editField('faq')} className='absolute text-blue-400 hover:text-black cursor-pointer top-0 right-2 duration-300'>Editar</span>
+              </div>
+                )}
         </div>
       </div>
     </section>
-  );
+  )
 }

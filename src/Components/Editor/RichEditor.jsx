@@ -1,34 +1,34 @@
-import React, { useState } from 'react';
-import ReactQuill from 'react-quill-new';
-import 'react-quill-new/dist/quill.snow.css';
+import React, { useState } from 'react'
+import ReactQuill from 'react-quill-new'
+import 'react-quill-new/dist/quill.snow.css'
 
 const RichEditor = ({ initialValue, onSave, onClose, title }) => {
-  const [content, setContent] = useState(initialValue);
-  const [showHtmlEditor, setShowHtmlEditor] = useState(false);
+  const [content, setContent] = useState(initialValue)
+  const [showHtmlEditor, setShowHtmlEditor] = useState(false)
 
   const modules = {
     toolbar: [
-      [{ 'header': [1, 2, 3, false] }],
+      [{ header: [1, 2, 3, false] }],
       ['bold', 'italic', 'underline', 'strike'],
-      [{ 'list': 'ordered'}, { 'list': 'bullet' }],
+      [{ list: 'ordered' }, { list: 'bullet' }],
       ['link', 'image'],
       ['clean'],
-      [{ 'color': [] }, { 'background': [] }],
-      [{ 'align': [] }]
-    ],
-  };
+      [{ color: [] }, { background: [] }],
+      [{ align: [] }]
+    ]
+  }
 
   const handleImageUpload = (e) => {
-    const file = e.target.files[0];
+    const file = e.target.files[0]
     if (file) {
-      const reader = new FileReader();
+      const reader = new FileReader()
       reader.onload = (e) => {
-        const img = `<img src="${e.target.result}" alt="Uploaded content" />`;
-        setContent(prev => prev + img);
-      };
-      reader.readAsDataURL(file);
+        const img = `<img src="${e.target.result}" alt="Uploaded content" />`
+        setContent(prev => prev + img)
+      }
+      reader.readAsDataURL(file)
     }
-  };
+  }
 
   return (
     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -52,13 +52,15 @@ const RichEditor = ({ initialValue, onSave, onClose, title }) => {
         </header>
 
         <div className="p-4 flex-grow overflow-auto">
-          {showHtmlEditor ? (
+          {showHtmlEditor
+            ? (
             <textarea
               value={content}
               onChange={(e) => setContent(e.target.value)}
               className="w-full h-full min-h-[400px] p-2 border rounded font-mono"
             />
-          ) : (
+              )
+            : (
             <ReactQuill
               theme="snow"
               value={content}
@@ -66,7 +68,7 @@ const RichEditor = ({ initialValue, onSave, onClose, title }) => {
               modules={modules}
               className="h-[400px] mb-12"
             />
-          )}
+              )}
         </div>
 
         <footer className="p-4 border-t flex justify-between items-center bg-gray-50">
@@ -96,7 +98,7 @@ const RichEditor = ({ initialValue, onSave, onClose, title }) => {
         </footer>
       </div>
     </div>
-  );
-};
+  )
+}
 
-export default RichEditor;
+export default RichEditor
