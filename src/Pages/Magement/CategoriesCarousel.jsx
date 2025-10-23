@@ -1,28 +1,27 @@
-import axios from "axios"
-import { useEffect, useState } from "react"
-import Swal from "sweetalert2"
-import "sweetalert2/dist/sweetalert2.min.css"
+import axios from 'axios'
+import { useEffect, useState } from 'react'
+import Swal from 'sweetalert2'
+import 'sweetalert2/dist/sweetalert2.min.css'
 
 const API_URL = import.meta.env.MODE === 'production'
   ? import.meta.env.VITE_API_URL_PROD
   : import.meta.env.VITE_API_URL_DEV
 
-export default function CategoriesCarousel() {
-  const STATIC_PATH = import.meta.env.MODE === 'production'   
-    ? '/home/realcolorweb/public_html/technologyline.com.ar/banners-images/Assets/CategoriesCarousel-images'
+export default function CategoriesCarousel () {
+  const STATIC_PATH = import.meta.env.MODE === 'production'
+    ? '/home/technologyline/public_html/banners-images/Assets/CategoriesCarousel-images'
     : '/home/subsistemas/Documents/GitHub/Realcolor/Technologyline-API/src/FakeStatic'
   const [newCategories, setNewCategories] = useState([])
   const [subcategories, setSubcategories] = useState([])
 
-
   useEffect(() => {
     axios.get(`${API_URL}/api/page/getCategoriesForCarrousel?t=${new Date()}`)
-    .then(res => setNewCategories(res.data))
-    .catch(e => Swal.fire('Error', 'Error al traer CategoriesCarousel, intente nuevamente!', 'error'))
+      .then(res => setNewCategories(res.data))
+      .catch(e => Swal.fire('Error', 'Error al traer CategoriesCarousel, intente nuevamente!', 'error'))
 
     axios.get(`${API_URL}/api/products/getSubcategories?t=${new Date()}`)
-    .then(res => setSubcategories(res.data))
-    .catch(e => Swal.fire('Error', 'Error al traer CategoriesCarousel, intente nuevamente!', 'error'))
+      .then(res => setSubcategories(res.data))
+      .catch(e => Swal.fire('Error', 'Error al traer CategoriesCarousel, intente nuevamente!', 'error'))
   }, [])
 
   const handleEdit = (cat) => {
