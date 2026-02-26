@@ -4,11 +4,13 @@ import Spinner from '../Components/Products/Spinner.jsx'
 import axios from 'axios'
 import ImageSlider from '../Components/Products/ImageSlider.jsx'
 import RichEditor from '../Components/Editor/RichEditor'
+import { FaCheck, FaCheckSquare, FaRegWindowClose } from 'react-icons/fa'
 
 const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV
 
 export default function Products () {
   const [product, setProduct] = useState(null)
+  const [preSell, setPreSell] = useState(null)
   const [productImages, setProductImages] = useState([])
   const [originalAditionalData, setOriginalAditionalData] = useState({ weight: '', volume: '' })
   const [aditionalData, setAditionalData] = useState({ weight: '', volume: '' })
@@ -21,6 +23,8 @@ export default function Products () {
   const [editingField, setEditingField] = useState(null)
   const location = useLocation()
   const navigate = useNavigate()
+
+  const togglePreSell = () => setPreSell(preSell === 1 ? 0 : 1)
 
   const editField = (field) => {
     setEditingField(field)
@@ -44,6 +48,7 @@ export default function Products () {
 
         setProduct(newProduct)
         setProductImages(newProduct.img_urls)
+        setPreSell(newProduct.pre_sell)
         setDescription(newProduct.descriptions)
         setSpecifications(newProduct.specifications)
         setFaq(newProduct.faq)
@@ -86,6 +91,11 @@ export default function Products () {
         body: JSON.stringify({ [field]: newValue })
       })
       if (!response.ok) throw new Error('Error al editar producto')
+
+      if (field === 'preSell') {
+        setPreSell(newValue)
+        window.location.reload()
+      }
 
       if (field === 'descriptions') {
         setDescription(newValue)
@@ -154,7 +164,36 @@ export default function Products () {
         </section>
 
         <section className='flex tracking-wider bg-[#fafafa] flex-col w-[40%] mt-5 min-h-[620px] max-sm:min-h-[500px] justify-center items-center h-fit max-md:w-full border rounded-lg p-8 max-sm:py-0 sm:mb-10 shadow-lg'>
-          <div className='min-h-[200px] flex flex-col gap-y-2'>
+          <div className='flex items-center gap-3 text-xl border-b-2 border-[#555] pb-2 w-full'>
+            <span>Modo Preventa:</span>
+
+            <section
+              onClick={() => handleEditField('pre_sell', preSell === 1 ? 0 : 1)}
+              className="text-lg flex items-center justify-center gap-2 cursor-pointer group relative"
+            >
+              {preSell === 1 ? (
+                <>
+                  {/* Estado Activado: Al hover muestra opción de Desactivar */}
+                  <span className="group-hover:hidden">Activado</span>
+                  <span className="hidden group-hover:inline text-red-600 font-semibold">Desactivar</span>
+
+                  <FaCheckSquare className='border group-hover:hidden mt-1 rounded-sm border-black text-green-500' />
+                  <FaRegWindowClose className='border mt-1 hidden group-hover:inline rounded-sm border-black text-red-500' />
+                </>
+              ) : (
+                <>
+                  {/* Estado Desactivado: Al hover muestra opción de Activar */}
+                  <span className="group-hover:hidden text-gray-500">Desactivado</span>
+                  <span className="hidden group-hover:inline text-blue-600 font-semibold">Activar</span>
+
+                  <FaRegWindowClose className='border mt-1 group-hover:hidden rounded-sm border-black text-red-500' />
+                  <FaCheckSquare className='border hidden group-hover:inline mt-1 rounded-sm border-black text-green-500' />
+                </>
+              )}
+            </section>
+          </div>
+
+          <div className='min-h-[200px] flex flex-col gap-y-2 pt-2'>
             <div className='flex flex-col w-full gap-y-3 justify-center'>
               <section className='flex flex-col text-lg w-full gap-2 border-b pb-3 border-dashed border-page-blue-normal'>
                 <p className='flex flex-col text-center text-[#333333] tracking-widest mb-2 text-2xl'>
