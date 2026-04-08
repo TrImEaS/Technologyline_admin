@@ -128,6 +128,14 @@ export default function ImageSlider({ loadedImages, setLoadedImages, id, sku }) 
 
   const handleDrop = useCallback((e) => {
     e.preventDefault();
+    
+    // Si viene texto/html o una URI, es un arrastre interno del DOM (como reordenar imágenes).
+    // Los archivos arrastrados desde el sistema operativo solo traen el tipo "Files".
+    const types = e.dataTransfer.types ? Array.from(e.dataTransfer.types) : [];
+    if (types.includes("text/html") || types.includes("text/uri-list")) {
+      return; 
+    }
+
     if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
       handleFiles(e.dataTransfer.files);
     }
