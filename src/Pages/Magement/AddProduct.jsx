@@ -2,7 +2,7 @@ import { useState, useCallback, useEffect } from 'react'
 import axios from 'axios'
 import { useDropzone } from 'react-dropzone'
 import { FaTimes } from 'react-icons/fa'
-import RichEditor from '../../Components/Editor/RichEditor'
+import Editor from '../../Components/Editor/Editor'
 import Swal from 'sweetalert2'
 
 const API_URL = import.meta.env.MODE === 'production'
@@ -300,7 +300,7 @@ export default function AddProduct () {
       </form>
 
       {openEditor && (
-        <RichEditor
+        <Editor
           initialValue={formData[openEditor]}
           title={openEditor === 'descriptions' ? 'Descripción' : 'Especificaciones'}
           onClose={() => setOpenEditor(null)}

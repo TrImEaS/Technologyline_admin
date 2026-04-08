@@ -3,9 +3,9 @@ import { useNavigate, useLocation } from 'react-router-dom'
 import Spinner from '../Components/Products/Spinner.jsx'
 import axios from 'axios'
 import ImageSlider from '../Components/Products/ImageSlider.jsx'
-import RichEditor from '../Components/Editor/RichEditor'
+import Editor from '../Components/Editor/Editor.jsx'
 import useFormattedPrice from '../Utils/useFormattedPrice.js'
-import { FaCartPlus, FaMapMarkerAlt, FaTruck } from 'react-icons/fa'
+import { FaCartPlus, FaMapMarkerAlt, FaTruck, FaExclamationTriangle } from 'react-icons/fa'
 const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV
 
 export default function Products () {
@@ -142,53 +142,40 @@ export default function Products () {
   if (loading) return <Spinner />
 
   const handleStockQuantity = () => {
+    if (!product) return;
     const quantity = product.stock
     
-    if (quantity < 1) {
-      return (
-        <span className='text-red-600'>
-          Sin stock
-        </span>
-      )
-    }
+    if (quantity < 1)
+      return ( <span className='text-red-600'> Sin stock </span> )
 
-    if (quantity === 1) {
-      return (
-        <span className='text-red-600'>
-          Ultima unidad
-        </span>
-      )
-    }
+    if (quantity === 1)
+      return ( <span className='text-red-600'> Ultima unidad </span> )
 
-    if (quantity < 5) {
-      return (
-        <span className='text-orange-400 font-semibold'>
-          Bajo
-        </span>
-      )
-    }
+    if (quantity < 5)
+      return ( <span className='text-orange-400 font-semibold'> Bajo </span> )
 
-    if (quantity < 10) {
-      return (
-        <span className='text-yellow-400 font-semibold'>
-          Medio
-        </span>
-      )
-    }
+    if (quantity < 10)
+      return ( <span className='text-yellow-400 font-semibold'> Medio </span> )
 
-    return (
-      <span className='text-green-600 font-semibold'>
-        Alto
-      </span>
-    )
+    return ( <span className='text-green-600 font-semibold'> Alto </span> )
   }
 
   const isSame = aditionalData.weight === originalAditionalData.weight && aditionalData.volume === originalAditionalData.volume
 
+  const maxInstallmentsLimit = parseInt(product?.max_installments) || 0;
+  
+  const availableInstallments = product ? Object.keys(product)
+    .filter(key => !isNaN(parseInt(key)) && parseInt(key) > 0 && parseInt(key) <= maxInstallmentsLimit)
+    .map(Number)
+    .sort((a, b) => b - a) : [];
+
+  const hasPromo = product?.promoPrice && product.promoPrice > 0 && product.promoPrice !== product.basePrice;
+
+
   return (
-    <section className='flex relative flex-col items-center h-full w-[90%] min-h-[600px] gap-y-10 pb-14 pt-5 max-md:pt-10'>
+    <section className='flex relative flex-col items-center h-full w-[100%] min-h-[600px] gap-y-10 pb-14 pt-5 max-md:pt-10'>
       <header className='w-[100%] relative h-full flex max-md:flex-col max-md:items-center sm:p-5 rounded-3xl py-5 gap-5'>
-        <section className='relative w-[60%] max-md:w-full h-full sm:mt-5 sm:min-h-[620px] min-h-[500px] sm:pb-10 sm:p-5 max-sm:px-1 rounded-lg'>
+        <section className='relative w-[55%] max-md:w-full h-full sm:mt-5 sm:min-h-[620px] min-h-[500px] sm:pb-10 sm:p-5 max-sm:px-1 rounded-lg'>
           {(product.stock <= 0) && (
             <span className='absolute top-[35%] max-md:text-3xl max-md:top-[33%] max-md:right-[12%] max-md:px-14 right-[15%] -rotate-12 z-20 italic bg-blue-400/70 tracking-widest text-white text-5xl px-10 font-semibold py-1 rounded-full'>
               INGRESANDO
@@ -204,7 +191,7 @@ export default function Products () {
 
           {loading
             ? <div><Spinner /></div>
-            : <ImageSlider loadedImages={product.img_urls}/>
+            : <ImageSlider loadedImages={productImages} setLoadedImages={setProductImages} sku={product.sku} id={product.id} />
           }
 
           {/* { product.brand.toLowerCase() === 'drean' &&
@@ -212,56 +199,76 @@ export default function Products () {
           } */}
         </section>
 
-        <section className='flex tracking-wider gap-4 flex-col w-[40%] mt-5 min-h-[620px] max-sm:min-h-[500px] justify-center items-center h-fit max-md:w-full border rounded-lg py-8 px-1 max-sm:py-5 sm:mb-10 shadow-lg'>
-          <div className='flex flex-col gap-y-2 w-[90%]'>
+        <section className='flex tracking-wider gap-4 flex-col w-[45%] mt-5 min-h-[620px] max-sm:min-h-[500px] justify-center items-center h-fit max-md:w-full py-8 px-1 max-sm:py-5 sm:mb-10'>
+          <div className='flex flex-col gap-y-2 w-[100%]'>
             <div className='flex flex-col w-full gap-y-3 justify-center'>
               {/*SECCION DE PRECIOS*/}
               <section className='flex flex-col items-start w-full gap-1 border-b pb-4 border-slate-600'>
-                <span className='text-xl uppercase text-white'>Precio de lista</span>
-                <span className='text-4xl font-bold text-white tracking-tight'>
-                  {`$ ${useFormattedPrice(product.price_list_4)}`}
+                <span className='text-3xl font-bold text-white max-sm:text-xl tracking-tight'>
+                  {`$ ${useFormattedPrice(product.basePrice)}`}
                 </span>
-                <span className='text-blue-300 text-sm font-semibold'>
-                  Precio sin impto. nac: {`$ ${useFormattedPrice(product.price_list_4 / ((product.tax_percentage / 100) + 1))}`}
+                <span className='text-gray-300 text-xs max-sm:text-[10px] font-semibold'>
+                  Precio sin impto. nac: {`$ ${useFormattedPrice(product.basePrice / ((product.tax_percentage / 100) + 1))}`}
                 </span>
               </section>
 
               {/*SECCION DE CUOTAS*/}
               <section className='flex flex-col w-full gap-2 py-1'>
-                <div className='flex items-center gap-2 text-blue-300 font-medium'>
-                  <span className='text-sm'>3 cuotas sin interés de {`$${(parseFloat(product.price_list_4) / 3).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span>
-                  <img className='h-4 object-contain' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon2.svg' alt="Visa"/>
-                  <img className='h-4 object-contain' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon3.svg' alt="MasterCard" />
-                  <img className='h-4 object-contain' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon1.svg' alt="Naranja" />
-                </div>
-                <div className='flex items-center gap-3 text-blue-300 font-medium'>
-                  <span className='text-sm'>6 cuotas sin interes de {`$${(parseFloat(product.price_list_4) / 6).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span>
-                  <div className='flex items-center gap-2'>
-                    <img className='h-4 object-contain' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon2.svg' alt="Visa"/>
-                    <img className='h-4 object-contain' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon3.svg' alt="MasterCard" />
-                    <img className='h-5 object-contain' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/card-icon1.svg' alt="Naranja" />
+                {availableInstallments.map((q) => (
+                  <div key={q} className='flex items-center gap-2 text-gray-200 font-medium'>
+                    <span className='text-base max-sm:text-[12px]'><b className='font-black text-[#005ea5]'>{q}</b> cuotas <b className='font-black text-[#005ea5]'>sin interes</b> de {`$${(parseFloat(product.basePrice) / q).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })}`}</span>
+                    <div className='flex items-center gap-2'>
+                      <img className='h-5 object-contain' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/logo_visa.webp' alt="Visa" />
+                      <img className='h-5 object-contain' src='https://technologyline.com.ar/banners-images/Assets/Some-icons/Mastercard-logo.webp' alt="Mastercard" />
+                    </div>
                   </div>
-                </div>
+                ))}
               </section>
 
               {/* PROMO EFECTIVO/TRANSFERENCIA */}
-              <section className='w-full pt-2'>
-                <div className='bg-blue-900/30 border border-blue-700/50 rounded-xl p-4 flex flex-col gap-1 shadow-sm hover:shadow-md transition-shadow duration-300'>
-                  <div className='flex justify-between items-center'>
-                    <span className='text-blue-300 font-bold text-xs uppercase tracking-wider'>Promo Efectivo / Transferencia / 1 Pago Tarjeta de crédito/débito con contactless (presencial) </span>
+              {hasPromo && (
+                <section className='w-full'>
+                  <div className='bg-gradient-to-br from-blue-100 to-blue-100/50 border border-blue-600/30 rounded-2xl p-5 flex flex-col gap-1 shadow-sm hover:shadow-md transition-all duration-500 group'>
+                    <div className='flex justify-between items-start'>
+                      <div className='flex flex-col'>
+                        <span className='bg-blue-600 text-white text-[10px] font-black px-2 py-0.5 rounded-full w-fit tracking-wider uppercase mb-1'>
+                          PROMO EXCLUSIVA
+                        </span>
+                        <h2 className='text-blue-500 max-sm:text-[12px] font-medium text-base tracking-normal'>
+                          Pagando con tarjeta de debito o credito en 1 pago de forma presencial obtene un {product.basePrice > 0 ? ((product.basePrice - product.promoPrice) / product.basePrice * 100).toFixed(0) : 0}% de descuento sobre el precio de lista
+                        </h2>
+                      </div>
+                      <div className='bg-blue-100 p-2 max-sm:p-1 rounded-xl  text-blue-600 group-hover:scale-110 transition-transform'>
+                        <FaMapMarkerAlt className='text-xl' />
+                      </div>
+                    </div>
+
+                    <div className='flex flex-col'>
+                      <div className='flex items-baseline justify-between'>
+                        <span className='text-blue-900/60 font-medium text-sm max-sm:text-[10px] uppercase tracking-widest'>Precio de Promo</span>
+                        <span className='text-2xl font-bold text-blue-700 max-sm:text-[17px] tracking-tighter'>{`$ ${useFormattedPrice(product.promoPrice)}`}</span>
+                      </div>
+                    </div>
                   </div>
-                  <div className='flex items-baseline gap-2'>
-                    <span className='text-2xl font-black text-blue-400'>{`$${useFormattedPrice(product.price_list_2)}`}</span>
-                    <span className='text-xs text-green-400 font-semibold'>(Ahorras: ${((product.price_list_2 - product.price_list_4) * -1).toLocaleString(undefined, { minimumFractionDigits: 2, maximumFractionDigits: 2 })})</span>
+
+                  <div className='flex items-start gap-3 mt-2 bg-amber-50 border border-amber-200 rounded-xl p-4 shadow-sm'>
+                    <FaExclamationTriangle className='text-amber-500 text-lg mt-0.5 flex-shrink-0' />
+                    <div className='flex flex-col gap-1'>
+                      <span className='font-bold text-amber-800 text-sm uppercase tracking-tight'>Aviso Importante</span>
+                      <p className='text-[11px] text-amber-700 leading-relaxed'>
+                        También podés acceder a la promo vía transferencia bancaria. 
+                        Tené en cuenta que la verificación de la misma demora <span className='font-bold underline'>24hs hábiles</span>.
+                      </p>
+                    </div>
                   </div>
-                </div>
-              </section>
+                </section>
+              )}
             </div>
           </div>
 
           {/* SECCIÓN DE ENVÍO */}
-          <div className='bg-slate-50 border border-slate-200 rounded-2xl w-[90%] overflow-hidden shadow-sm'>
-            <div className='p-4 bg-white border-b border-slate-100'>
+          <div className='bg-slate-50 border flex max-sm:flex-col items-center border-slate-200 rounded-2xl w-[100%] max-sm:w-full overflow-hidden shadow-sm'>
+            <div className='p-4 bg-white border-b w-full sm:border-b-0 sm:border-r sm:w-[60%] border-slate-200'>
               <div className='flex flex-col gap-3'>
                 <div className='flex items-center gap-2 text-page-blue-normal'>
                   <FaTruck className='text-lg' />
@@ -288,14 +295,14 @@ export default function Products () {
                         setUserCP(val);
                       }
                     }}
-                    className='w-full pl-9 pr-4 py-2 bg-slate-100 border-none rounded-xl text-sm focus:ring-2 focus:ring-page-blue-normal outline-none transition-all'
+                    className='w-full pl-9 pr-4 py-2 bg-slate-100 border-slate-200 border-2 rounded-xl text-sm focus:ring-2 focus:ring-page-blue-normal outline-none transition-all'
                     placeholder="Ingresá tu CP..."
                   />
                 </div>
               </div>
             </div>
 
-            <div className='p-4 min-h-[80px] flex items-center justify-center'>
+            <div className='p-4 min-h-[80px] flex items-center w-full sm:w-[40%] justify-center'>
               {loadingShipping ? (
                 <div className='flex flex-col items-center gap-2'>
                   <span className='text-[10px] text-slate-400 animate-pulse'>Calculando costos...</span>
@@ -310,7 +317,7 @@ export default function Products () {
                     href="https://wa.me/5491131019901" 
                     target="_blank" 
                     rel="noreferrer"
-                    className='text-[10px] bg-green-500 text-white px-4 py-1.5 rounded-full font-bold hover:bg-green-600 transition-colors shadow-sm'
+                    className='text-[10px] bg-green-500 text-gray-800 px-4 py-1.5 rounded-full font-bold hover:bg-green-600 transition-colors shadow-sm'
                   >
                     CONSULTAR POR WHATSAPP
                   </a>
@@ -324,15 +331,15 @@ export default function Products () {
                   </div>
                 </div>
               ) : shippingResult ? (
-                <div className='w-full space-y-2'>
-                  <div className='flex flex-col justify-between items-center'>
+                <div className='w-full'>
+                  <div className='flex flex-col items-center'>
                     <div className='flex flex-col items-center w-full'>
-                      <span className='text-[11px] uppercase font-bold text-slate-400'>Costo estimado</span>
-                      <span className='text-2xl font-black text-slate-800'>
+                      <span className='text-[11px] uppercase font-bold text-slate-500'>Costo estimado</span>
+                      <span className='text-xl font-black text-slate-800'>
                         ${shippingResult.total.toLocaleString('es-AR', { minimumFractionDigits: 2 })}
                       </span>
                     </div>
-                    <span className='text-[11px] uppercase font-bold text-green-600 bg-green-50 px-2 py-1 rounded-full'>
+                    <span className='text-[11px] uppercase font-bold text-[#4398d9] bg-green-50 px-2 rounded-full'>
                       Llega en {shippingResult.time} días
                     </span>
                   </div>
@@ -346,19 +353,16 @@ export default function Products () {
           </div>
           
           {/* STOCK Y BOTONES */}
-          <div className='flex pt-5 max-md:justify-center flex-col w-full gap-5 items-center'>
-            <span className='text-sm uppercase tracking-widest font-semibold text-gray-50'>
-              DISPONIBILIDAD: {handleStockQuantity()}
-            </span>
+          <div className='flex pt-1 max-md:justify-center flex-col w-full gap-2 items-center'>
             <button
               onClick={() => completeOrder({ product })}
-              className='max-sm:hidden bg-blue-500/50 backdrop-blur-lg active:text-sm active:duration-0 rounded-xl flex items-center justify-center text-sm font-bold duration-300 border border-gray-300 text-white py-1 px-2 w-[90%] h-[50px] cart hover:brightness-105'
+              className='max-sm:hidden bg-blue-600/80 backdrop-blur-lg active:text-sm active:duration-0 rounded-xl flex items-center justify-center text-sm font-bold duration-300 border border-gray-300 text-gray-50 py-1 px-2 w-[100%] h-[50px] cart hover:brightness-105'
             >
               REALIZAR PEDIDO
             </button>
             <button
               onClick={() => addProductToCart({ product })}
-              className='max-sm:hidden gap-3 bg-blue-200/80 backdrop-blur-lg active:text-sm active:duration-0 rounded-xl flex items-center justify-center text-sm font-bold duration-300 border border-gray-300 text-page-blue-normal py-1 px-2 w-[90%] h-[50px] cart hover:brightness-105'
+              className='max-sm:hidden gap-3 bg-blue-200/80 backdrop-blur-lg active:text-sm active:duration-0 rounded-xl flex items-center justify-center text-sm font-bold duration-300 border border-gray-300 text-page-blue-normal py-1 px-2 w-[100%] h-[50px] cart hover:brightness-105'
             >
               <FaCartPlus className="text-xl max-sm:text-lg"/>
               <span>AGREGAR AL CARRITO</span>
@@ -366,7 +370,7 @@ export default function Products () {
           </div>
 
           {/* DATOS ADICIONALES */}
-          <div className='flex flex-col text-white w-full justify-center items-center gap-5 mt-5 border-t border-gray-300 pt-5'>
+          <div className='flex flex-col text-white w-full justify-center items-center gap-5 mt-5 bg-blue-400/20 border border-gray-300 rounded-lg p-5'>
             <h3 className='text-white'>Datos adicionales </h3>
 
             <article className='flex gap-2'>
@@ -407,7 +411,7 @@ export default function Products () {
       </header>
 
       {showEditor && (
-        <RichEditor
+        <Editor
           initialValue={editingField === 'desc' ? description : editingField === 'spec' ? specifications : faq}
           title={editingField === 'desc' ? 'Descripción' : editingField === 'spec' ? 'Especificaciones' : 'FAQ'}
           onSave={(content) => {

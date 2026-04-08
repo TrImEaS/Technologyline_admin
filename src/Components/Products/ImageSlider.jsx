@@ -3,6 +3,7 @@ import Spinner from "./Spinner.jsx";
 import { DndProvider, useDrag, useDrop } from "react-dnd";
 import { HTML5Backend } from "react-dnd-html5-backend";
 import axios from "axios";
+import Swal from "sweetalert2";
 
 const API_URL = import.meta.env.MODE === 'production' ? import.meta.env.VITE_API_URL_PROD : import.meta.env.VITE_API_URL_DEV;
 const MAX_IMAGES = 10;
@@ -102,13 +103,12 @@ export default function ImageSlider({ loadedImages, setLoadedImages, id, sku }) 
     }
   };
 
-  const handleFileUpload = (e) => {
-    const files = e.target.files;
+  const handleFiles = (files) => {
     const newImages = Array.from(files).map(file => ({
       previewUrl: URL.createObjectURL(file),
       remoteUrl: null,
       isNew: true,
-      file: file  // Guardamos referencia al archivo original
+      file: file
     }));
     setLocalImages(prev => {
       const newImgs = [...prev, ...newImages];
@@ -118,7 +118,24 @@ export default function ImageSlider({ loadedImages, setLoadedImages, id, sku }) 
       return newImgs;
     });
     setHasChanges(true);
-  }
+  };
+
+  const handleFileUpload = (e) => {
+    if (e.target.files) {
+      handleFiles(e.target.files);
+    }
+  };
+
+  const handleDrop = useCallback((e) => {
+    e.preventDefault();
+    if (e.dataTransfer.files && e.dataTransfer.files.length > 0) {
+      handleFiles(e.dataTransfer.files);
+    }
+  }, []);
+
+  const handleDragOver = useCallback((e) => {
+    e.preventDefault();
+  }, []);
 
   const handleSaveChanges = async () => {
     try {
@@ -151,36 +168,55 @@ export default function ImageSlider({ loadedImages, setLoadedImages, id, sku }) 
         sku: sku,
         images: imageUrls
       });
-    setLoadedImages(imageUrls);
-    setHasChanges(false);
-    setLoading(false);
-  } catch (error) {
-    console.error('Error saving images:', error);
-    setLoading(false);
-    alert('Error al guardar los cambios');
-  }
-};
+        setLoadedImages(imageUrls);
+        setHasChanges(false);
+        setLoading(false);
+        
+        Swal.fire({
+          title: '¡Guardado!',
+          text: 'Las imágenes se han actualizado correctamente.',
+          icon: 'success',
+          confirmButtonColor: '#3b82f6',
+          timer: 2000,
+          timerProgressBar: true
+        });
+      } catch (error) {
+        console.error('Error saving images:', error);
+        setLoading(false);
+        
+        Swal.fire({
+          title: 'Error',
+          text: 'No se pudieron guardar los cambios. Por favor, reintenta.',
+          icon: 'error',
+          confirmButtonColor: '#ef4444'
+        });
+      }
+    };
     
   return (
     <DndProvider backend={HTML5Backend}>
-      <div className="min-h-[300px] pt-5 relative w-full max-w-[688px]">
+      <div 
+        className="min-h-[300px] pt-5 relative w-full max-w-[688px]"
+        onDrop={handleDrop}
+        onDragOver={handleDragOver}
+      >
         {localImages.length > 0 && (
-          <div className="flex items-center justify-center relative">
-            <button {...navigationProps.prev}>◀</button>
-            <div className="h-full flex items-center justify-center w-full">
+          <div className="flex items-center justify-center relative w-full h-[450px] bg-white rounded-xl shadow-sm border border-gray-100 overflow-hidden group">
+            <button {...navigationProps.prev} className="absolute left-2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full z-10 transition opacity-0 group-hover:opacity-100">◀</button>
+            <div className="h-full w-full flex items-center justify-center">
               {loading ? (
                 <Spinner />
               ) : (
                 <img
-                  src={localImages[currentIndex].previewUrl}
+                  src={localImages[currentIndex]?.previewUrl}
                   alt={`Image ${currentIndex + 1}`}
-                  className="object-contain max-w-[510px] rounded-lg cursor-zoom-in min-h-[300px]"
+                  className="object-contain w-full h-full cursor-zoom-in transition-transform duration-300 hover:scale-105"
                   onError={() => setLoading(false)}
                   onClick={() => handleZoomImage(localImages[currentIndex])}
                 />
               )}
             </div>
-            <button {...navigationProps.next}>▶</button>
+            <button {...navigationProps.next} className="absolute right-2 bg-black bg-opacity-50 hover:bg-opacity-70 text-white p-3 rounded-full z-10 transition opacity-0 group-hover:opacity-100">▶</button>
           </div>
         )}
         
@@ -197,9 +233,9 @@ export default function ImageSlider({ loadedImages, setLoadedImages, id, sku }) 
             />
           ))}
           {localImages.length < MAX_IMAGES && (
-            <label className="w-16 h-16 flex items-center justify-center border-dashed border-2 border-gray-500 rounded-lg cursor-pointer">
-              +
-              <input type="file" className="hidden" accept="image/*" onChange={handleFileUpload} />
+            <label className="w-16 h-16 flex flex-col items-center justify-center border-dashed border-2 border-blue-400 text-blue-500 rounded-lg cursor-pointer bg-blue-50 hover:bg-blue-100 transition">
+              <span className="text-2xl font-light">+</span>
+              <input type="file" className="hidden" accept="image/*" multiple onChange={handleFileUpload} />
             </label>
           )}
         </div>
@@ -214,9 +250,14 @@ export default function ImageSlider({ loadedImages, setLoadedImages, id, sku }) 
         )}
 
         {hasChanges && (
-          <button onClick={handleSaveChanges} className="mt-4 bg-blue-500 text-white px-4 py-2 rounded">
-            Guardar cambios
-          </button>
+          <div className="fixed bottom-8 right-8 z-[99]">
+            <button onClick={handleSaveChanges} className="bg-blue-600 hover:bg-blue-700 text-white font-bold px-6 py-3 rounded-full shadow-2xl transition transform hover:scale-105 flex items-center gap-2">
+              <svg xmlns="http://www.w3.org/2000/svg" className="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+              </svg>
+              Guardar cambios
+            </button>
+          </div>
         )}
       </div>
     </DndProvider>
