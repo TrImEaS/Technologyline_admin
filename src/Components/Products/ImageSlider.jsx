@@ -153,12 +153,12 @@ export default function ImageSlider({ loadedImages, setLoadedImages, id, sku }) 
       for (let i = 0; i < newImages.length; i++) {
         const img = newImages[i];
         const formData = new FormData();
-        formData.append('image', img.file);
         
-        // Agregar sku e índice al FormData
+        // Agregar sku e índice ANTES que la imagen para que multer los tenga en req.body al procesar el filename
         const realIndex = localImages.findIndex(localImg => localImg === img);
-        formData.append('index', realIndex);
         formData.append('sku', sku);
+        formData.append('index', realIndex);
+        formData.append('image', img.file);
         
         const uploadResponse = await axios.post(`${API_URL}/api/products/addImage`, formData, {
           headers: {
