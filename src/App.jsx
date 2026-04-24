@@ -17,6 +17,7 @@ import { ProductsProvider } from './Context/ProductsContext.jsx';
 import { PageProvider, usePage } from './Context/PageContext.jsx';
 import CategoriesCarousel from "./Pages/Magement/CategoriesCarousel.jsx";
 import BrandsCarousel from "./Pages/Magement/BrandsCarousel.jsx";
+import Informes from "./Pages/Magement/Informes.jsx";
 
 export default function App() {
   return (
@@ -52,6 +53,7 @@ function AppContent() {
             <Route path="/admin/page/manage/subcategories" element={<Subcategories />} />
             <Route path="/admin/page/manage/categories_carousel" element={<CategoriesCarousel />} />
             <Route path="/admin/page/manage/brands_carousel" element={<BrandsCarousel />} />
+            <Route path="/admin/page/manage/informes" element={<Informes />} />
           </Routes>
         </main>
       )

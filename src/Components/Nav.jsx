@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 import { NavLink, useLocation } from 'react-router-dom';
-import { FaEnvelopeOpenText, FaChevronDown, FaPlus, FaList, FaSitemap, FaTags } from "react-icons/fa6";
+import { FaEnvelopeOpenText, FaChevronDown, FaPlus, FaList, FaSitemap, FaTags, FaFileLines } from "react-icons/fa6";
 import axios from "axios";
 import Swal from 'sweetalert2';
 import { usePage } from '../Context/PageContext.jsx'
@@ -128,6 +128,7 @@ export default function Nav() {
               <NavLink to={'/admin/page/manage/banners'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaPlus /> Banners</NavLink>
               <NavLink to={'/admin/page/manage/categories_carousel'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaList /> Carousel de categorias</NavLink>
               <NavLink to={'/admin/page/manage/brands_carousel'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaTags /> Carousel de marcas</NavLink>
+              <NavLink to={'/admin/page/manage/informes'} className="p-3 flex items-center gap-2 hover:bg-blue-100 duration-200" onClick={() => setDropdownOpen(false)}><FaFileLines /> Informes</NavLink>
             </div>
           )}
         </div>
