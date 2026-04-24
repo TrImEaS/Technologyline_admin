@@ -18,8 +18,10 @@ jobs:
           username: ${{ secrets.USERNAME }}
           key: ${{ secrets.SSH_KEY }}
           script: |
-            cd /home/technologyline/public_html/admin/page
+            cd /home/repositories/technologyline_admin
             git pull origin main
-            npm install --production
-            npm audit fix
+            npm install 
             npm run build
+            rm -rf /home/technologyline/public_html/admin/page/assets/*
+            rm -rf /home/technologyline/public_html/admin/page/index.html
+            cp -r dist/* /home/technologyline/public_html/admin/page/
